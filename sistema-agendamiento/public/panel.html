@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda Valencia Stetic</title>
+<link rel="stylesheet" href="/estilos.css">
+<style>
+  .top { position: sticky; top: 0; z-index: 5; background: var(--blanco); border-bottom: 1px solid var(--linea); }
+  .top-in { max-width: 1280px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .marca { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--azul); color: #fff; display: grid; place-items: center; font-weight: 600; }
+  .marca b { display: block; font-size: 15px; }
+  .marca small { color: var(--gris-med); font-size: 11.5px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav button { border: 0; background: none; padding: 8px 12px; border-radius: 999px; cursor: pointer; font-weight: 500; color: var(--gris-med); }
+  nav button.activo { background: var(--celeste-suave); color: var(--azul-osc); }
+  nav .badge { background: var(--alerta); color: #fff; border-radius: 999px; font-size: 10.5px; padding: 1px 6px; margin-left: 4px; }
+  .estado-top { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+  main { max-width: 1280px; margin: 0 auto; padding: 18px 16px 60px; }
+  .aviso { background: var(--alerta-suave); border: 1px solid #F3D9A8; color: #7A4B00; border-radius: var(--radio); padding: 10px 14px; margin-bottom: 14px; font-size: 13px; }
+
+  /* Agenda */
+  .barra { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .barra h2 { margin-right: auto; }
+  .cita { display: grid; grid-template-columns: 86px 1fr auto; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--linea); align-items: center; }
+  .cita:last-child { border-bottom: 0; }
+  .cita .hora { font-weight: 600; font-size: 15px; }
+  .cita .hora small { display: block; font-weight: 400; color: var(--gris-med); font-size: 11.5px; }
+  .cita .quien b { font-weight: 600; }
+  .cita .acciones { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .cita.cancelada { opacity: .5; }
+  @media (max-width: 760px) { .cita { grid-template-columns: 64px 1fr; } .cita .acciones { grid-column: 1 / -1; justify-content: flex-start; } }
+
+  /* Conversaciones */
+  .chat-layout { display: grid; grid-template-columns: 340px 1fr; gap: 14px; height: calc(100vh - 150px); min-height: 520px; }
+  @media (max-width: 860px) { .chat-layout { grid-template-columns: 1fr; height: auto; } .chat-layout .lista-c { max-height: 320px; } }
+  .lista-c { overflow: auto; display: flex; flex-direction: column; }
+  .lista-c .buscar { padding: 10px; border-bottom: 1px solid var(--linea); position: sticky; top: 0; background: var(--blanco); }
+  .lista-c .buscar input { width: 100%; }
+  .item-c { padding: 10px 12px; border-bottom: 1px solid var(--linea); cursor: pointer; display: grid; gap: 3px; }
+  .item-c:hover, .item-c.sel { background: var(--celeste-suave); }
+  .item-c .l1 { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+  .item-c .l1 b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item-c .ult { color: var(--gris-med); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .conv { display: flex; flex-direction: column; overflow: hidden; }
+  .conv-cab { padding: 12px 14px; border-bottom: 1px solid var(--linea); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .conv-cab .n { margin-right: auto; }
+  .conv-cab .n b { font-size: 15px; }
+  .mensajes { flex: 1; overflow: auto; padding: 16px; background: #EFEAE2; display: flex; flex-direction: column; gap: 6px; }
+  .burbuja { max-width: 78%; padding: 7px 10px 5px; border-radius: 10px; white-space: pre-wrap; word-wrap: break-word; font-size: 13.5px; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
+  .burbuja.in { background: #fff; align-self: flex-start; border-top-left-radius: 2px; }
+  .burbuja.out { background: #D9FDD3; align-self: flex-end; border-top-right-radius: 2px; }
+  .burbuja.equipo { background: #CFEFFB; }
+  .burbuja .meta { display: block; font-size: 10.5px; color: var(--gris-med); text-align: right; margin-top: 2px; }
+  .enviar { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--linea); }
+  .enviar textarea { flex: 1; resize: none; height: 42px; }
+  .ficha { padding: 10px 14px; border-bottom: 1px solid var(--linea); display: flex; gap: 10px; flex-wrap: wrap; font-size: 12.5px; background: var(--crema); }
+
+  /* Métricas */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { padding: 14px 16px; }
+  .kpi small { color: var(--gris-med); font-size: 12px; display: block; }
+  .kpi b { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .kpi span { font-size: 11.5px; color: var(--gris-med); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--linea); }
+  th { font-weight: 500; color: var(--gris-med); font-size: 12px; background: var(--crema); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tabla-wrap { overflow-x: auto; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+  .seccion { margin-bottom: 16px; }
+  .seccion > h3 { padding: 12px 14px; border-bottom: 1px solid var(--linea); }
+  .barra-etapa { display: grid; grid-template-columns: 130px 1fr 40px; gap: 10px; align-items: center; padding: 6px 14px; font-size: 12.5px; }
+  .barra-etapa .b { height: 10px; border-radius: 6px; background: var(--azul); }
+
+  /* Modal */
+  .velo { position: fixed; inset: 0; background: rgba(30,30,30,.35); display: grid; place-items: center; z-index: 20; padding: 16px; }
+  .modal { width: min(460px, 100%); padding: 18px; display: grid; gap: 12px; max-height: 92vh; overflow: auto; }
+  .modal .fila > * { flex: 1; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--gris); color: #fff; padding: 10px 16px; border-radius: 10px; z-index: 30; font-size: 13px; max-width: 90vw; }
+  .login { max-width: 360px; margin: 12vh auto; padding: 24px; display: grid; gap: 14px; text-align: center; }
+</style>
+</head>
+<body>
+<div id="vistaLogin" class="oculto">
+  <form class="tarjeta login" id="formLogin">
+    <div class="logo" style="margin:0 auto">VS</div>
+    <h2>Agenda Valencia Stetic</h2>
+    <input type="password" id="clave" placeholder="Clave del equipo" autocomplete="current-password" required>
+    <button class="btn primario" style="justify-content:center">Entrar</button>
+    <small class="muted" id="loginError"></small>
+  </form>
+</div>
+
+<div id="app" class="oculto">
+  <header class="top"><div class="top-in">
+    <div class="marca"><div class="logo">VS</div><div><b>Valencia Stetic</b><small>Agenda automática por WhatsApp</small></div></div>
+    <nav id="nav">
+      <button data-v="agenda" class="activo">Agenda</button>
+      <button data-v="chats">Conversaciones <span class="badge oculto" id="badgeAsesora"></span></button>
+      <button data-v="metricas">Resultados</button>
+      <button data-v="ajustes">Ajustes</button>
+    </nav>
+    <div class="estado-top" id="estadoTop"></div>
+  </div></header>
+
+  <main>
+    <div id="avisoPendientes" class="aviso oculto"></div>
+
+    <!-- AGENDA -->
+    <section data-vista="agenda">
+      <div class="barra">
+        <h2 id="tituloDia">Agenda</h2>
+        <button class="btn chico" id="diaAnt" aria-label="Día anterior">◀</button>
+        <input type="date" id="fechaAgenda">
+        <button class="btn chico" id="diaSig" aria-label="Día siguiente">▶</button>
+        <button class="btn chico" id="diaHoy">Hoy</button>
+        <button class="btn primario" id="btnNuevaCita">+ Nueva cita</button>
+      </div>
+      <div class="tarjeta" id="listaCitas"></div>
+    </section>
+
+    <!-- CONVERSACIONES -->
+    <section data-vista="chats" class="oculto">
+      <div class="chat-layout">
+        <div class="tarjeta lista-c">
+          <div class="buscar"><input id="buscarC" placeholder="Buscar nombre o número"></div>
+          <div id="listaContactos"></div>
+        </div>
+        <div class="tarjeta conv" id="conv"><div class="vacio">Selecciona una conversación</div></div>
+      </div>
+    </section>
+
+    <!-- RESULTADOS -->
+    <section data-vista="metricas" class="oculto">
+      <div class="barra">
+        <h2>Resultados</h2>
+        <label style="flex-direction:row;display:flex;align-items:center;gap:6px">Desde <input type="date" id="mDesde"></label>
+        <label style="flex-direction:row;display:flex;align-items:center;gap:6px">Hasta <input type="date" id="mHasta"></label>
+        <button class="btn chico" data-rango="7">7 días</button>
+        <button class="btn chico" data-rango="30">30 días</button>
+        <a class="btn chico" href="/api/export.csv">Exportar CSV (sin teléfonos)</a>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="tarjeta seccion"><h3>Por anuncio / origen</h3><div class="tabla-wrap" id="tablaAnuncios"></div></div>
+      <div class="grid2">
+        <div class="tarjeta seccion"><h3>Por servicio</h3><div class="tabla-wrap" id="tablaServicios"></div></div>
+        <div class="tarjeta seccion"><h3>Etapas del embudo (contactos del periodo)</h3><div id="etapas" style="padding:8px 0"></div></div>
+      </div>
+      <p class="muted" style="font-size:12px">Para costo por cita y CAC, cruza estas cifras con el gasto por anuncio en el Administrador de anuncios de Meta. Las cifras de Meta (conversaciones) y las del sistema (citas, asistencias) no son idénticas: aquí cuenta cada persona una vez.</p>
+    </section>
+
+    <!-- AJUSTES -->
+    <section data-vista="ajustes" class="oculto">
+      <div class="grid2">
+        <div class="tarjeta seccion"><h3>Integraciones</h3><div id="integraciones" style="padding:12px 14px;display:grid;gap:10px"></div></div>
+        <div class="tarjeta seccion"><h3>Servicios configurados</h3><div class="tabla-wrap" id="tablaConfigServicios"></div></div>
+      </div>
+      <div class="tarjeta seccion">
+        <h3>Bloqueos de agenda (vacaciones, citas por fuera, mantenimiento)</h3>
+        <form id="formBloqueo" class="fila" style="padding:12px 14px">
+          <label>Desde <input type="datetime-local" id="bDesde" required step="1800"></label>
+          <label>Hasta <input type="datetime-local" id="bHasta" required step="1800"></label>
+          <label>Recurso <select id="bRecurso"><option value="">Todos</option></select></label>
+          <label style="flex:1">Motivo <input id="bMotivo" placeholder="Ej.: capacitación"></label>
+          <button class="btn primario" style="align-self:end">Bloquear</button>
+        </form>
+        <div id="listaBloqueos"></div>
+      </div>
+      <div class="tarjeta seccion">
+        <h3 class="fila" style="justify-content:space-between">Eventos enviados a Meta (Conversions API) <button class="btn chico" id="btnTareas">Ejecutar recordatorios ahora</button></h3>
+        <div class="tabla-wrap" id="tablaCapi"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="modal" class="velo oculto"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const negrita = s => esc(s).replace(/\*([^*\n]+)\*/g, '<b>$1</b>');
+const pesos = n => '$' + Number(n || 0).toLocaleString('es-CO');
+const tel = w => { const d = String(w).replace(/^sim/, ''); return (String(w).startsWith('sim') ? '🧪 ' : '+') + d.replace(/^(57)(\d{3})(\d{3})(\d{4})$/, '$1 $2 $3 $4'); };
+let CFG = null, contactoSel = null, ultimoMsgId = 0;
+
+async function api(url, opts = {}) {
+  const r = await fetch(url, { ...opts, headers: { 'Content-Type': 'application/json' }, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  if (r.status === 401) { mostrarLogin(); throw new Error('Sesión requerida'); }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || 'Error');
+  return data;
+}
+function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3500); }
+function mostrarLogin() { $('#app').classList.add('oculto'); $('#vistaLogin').classList.remove('oculto'); }
+$('#formLogin').onsubmit = async e => {
+  e.preventDefault();
+  try { await api('/api/login', { method: 'POST', body: { clave: $('#clave').value } }); $('#vistaLogin').classList.add('oculto'); iniciar(); }
+  catch (err) { $('#loginError').textContent = err.message; }
+};
+
+// ───── Navegación
+let vista = 'agenda';
+$('#nav').onclick = e => { const b = e.target.closest('button'); if (b) irA(b.dataset.v); };
+function irA(v) {
+  vista = v;
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('activo', b.dataset.v === v));
+  document.querySelectorAll('[data-vista]').forEach(s => s.classList.toggle('oculto', s.dataset.vista !== v));
+  ({ agenda: cargarAgenda, chats: cargarContactos, metricas: cargarMetricas, ajustes: cargarAjustes })[v]();
+}
+
+// ───── Fechas
+const sumarDias = (f, n) => { const d = new Date(f + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const fechaLarga = f => { const d = new Date(f + 'T12:00:00Z'); return `${DIAS[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`; };
+const hora12 = h => { let [a, m] = h.split(':').map(Number); const s = a >= 12 ? 'p. m.' : 'a. m.'; a = a % 12 || 12; return `${a}:${String(m).padStart(2, '0')} ${s}`; };
+const cuando = ms => { const d = new Date(ms); return d.toLocaleString('es-CO', { timeZone: 'America/Bogota', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); };
+
+// ───── AGENDA
+const ESTADO_CITA = { agendada: ['Agendada', 'azul'], confirmada: ['Confirmada', 'ok'], asistio: ['Asistió', 'ok'], no_asistio: ['No asistió', 'error'], cancelada: ['Cancelada', 'gris'] };
+$('#fechaAgenda').onchange = cargarAgenda;
+$('#diaAnt').onclick = () => { $('#fechaAgenda').value = sumarDias($('#fechaAgenda').value, -1); cargarAgenda(); };
+$('#diaSig').onclick = () => { $('#fechaAgenda').value = sumarDias($('#fechaAgenda').value, 1); cargarAgenda(); };
+$('#diaHoy').onclick = () => { $('#fechaAgenda').value = CFG.hoy; cargarAgenda(); };
+async function cargarAgenda() {
+  const f = $('#fechaAgenda').value;
+  $('#tituloDia').textContent = (f === CFG.hoy ? 'Hoy, ' : '') + fechaLarga(f);
+  const citas = await api(`/api/citas?desde=${f}&hasta=${sumarDias(f, 1)}`);
+  const activas = citas.filter(c => c.estado !== 'cancelada').length;
+  $('#listaCitas').innerHTML = citas.length ? citas.map(c => {
+    const [txt, cls] = ESTADO_CITA[c.estado] || [c.estado, ''];
+    const origen = c.codigo_anuncio ? `<span class="pill azul">Anuncio ${esc(c.codigo_anuncio)}</span>` : c.ctwa_clid || c.ad_id ? '<span class="pill azul">Meta Ads</span>' : c.origen === 'panel' ? '<span class="pill">Panel</span>' : c.origen === 'web' ? '' : '<span class="pill">WhatsApp</span>';
+    const web = c.origen === 'web' ? `<span class="pill azul" title="Reservada desde la página /reservas${c.grupo ? ' · ' + esc(c.grupo) : ''}">Reserva web</span>` : '';
+    const abierta = ['agendada', 'confirmada'].includes(c.estado);
+    return `<div class="cita ${c.estado}">
+      <div class="hora">${hora12(c.inicio.slice(11, 16))}<small>${esc(c.servicio)}</small></div>
+      <div class="quien"><b>${esc(c.nombre || c.nombre_perfil || 'Sin nombre')}</b> · <span class="muted">${esc(tel(c.wa_id))}</span>
+        <div class="fila" style="margin-top:4px"><span class="pill ${cls}">${txt}</span>${web}${origen}${c.requiere_revision ? '<span class="pill alerta">Revisar condiciones</span>' : ''}${c.valor_cobrado ? `<span class="pill ok">${pesos(c.valor_cobrado)}</span>` : ''}${c.notas ? `<span class="muted" style="font-size:12px">📝 ${esc(c.notas)}</span>` : ''}</div></div>
+      <div class="acciones">
+        ${abierta && c.estado !== 'confirmada' ? `<button class="btn chico" data-acc="confirmada" data-id="${c.id}">Confirmar</button>` : ''}
+        ${abierta ? `<button class="btn chico" data-acc="asistio" data-id="${c.id}">Asistió</button><button class="btn chico" data-acc="no_asistio" data-id="${c.id}">No asistió</button><button class="btn chico" data-acc="mover" data-id="${c.id}" data-servicio="${c.servicio_id}">Mover</button><button class="btn chico peligro" data-acc="cancelada" data-id="${c.id}">Cancelar</button>` : ''}
+        <button class="btn chico" data-acc="chat" data-wa="${esc(c.wa_id)}">Chat</button>
+      </div></div>`;
+  }).join('') : '<div class="vacio">No hay citas este día.</div>';
+  if (citas.length) $('#listaCitas').insertAdjacentHTML('afterbegin', `<div class="muted" style="padding:10px 16px;border-bottom:1px solid var(--linea);font-size:12.5px">${activas} cita${activas === 1 ? '' : 's'} activa${activas === 1 ? '' : 's'}</div>`);
+}
+$('#listaCitas').onclick = async e => {
+  const b = e.target.closest('button[data-acc]'); if (!b) return;
+  const acc = b.dataset.acc, id = b.dataset.id;
+  try {
+    if (acc === 'chat') { irA('chats'); return abrirChat(b.dataset.wa); }
+    if (acc === 'mover') return modalMover(id, b.dataset.servicio);
+    if (acc === 'asistio') {
+      const v = prompt('Valor cobrado en COP (opcional, solo números). Se envía a Meta como venta para medir el retorno de la pauta:', '');
+      if (v === null) return;
+      await api(`/api/citas/${id}/estado`, { method: 'POST', body: { estado: 'asistio', valor: v.replace(/\D/g, '') || null } });
+    } else if (acc === 'cancelada') {
+      if (!confirm('¿Cancelar esta cita? Si la ventana de WhatsApp está abierta, el cliente recibe un aviso con opción de reagendar.')) return;
+      await api(`/api/citas/${id}/estado`, { method: 'POST', body: { estado: 'cancelada' } });
+    } else await api(`/api/citas/${id}/estado`, { method: 'POST', body: { estado: acc } });
+    cargarAgenda();
+  } catch (err) { toast(err.message); }
+};
+
+function abrirModal(html) { $('#modal').innerHTML = `<div class="tarjeta modal">${html}</div>`; $('#modal').classList.remove('oculto'); }
+function cerrarModal() { $('#modal').classList.add('oculto'); $('#modal').innerHTML = ''; }
+$('#modal').onclick = e => { if (e.target.id === 'modal' || e.target.dataset.cerrar !== undefined) cerrarModal(); };
+
+async function llenarHoras(servicio, fecha, sel) {
+  if (!servicio || !fecha) return;
+  const { horas } = await api(`/api/disponibilidad?servicio=${servicio}&fecha=${fecha}`);
+  sel.innerHTML = horas.length ? horas.map(h => `<option value="${h}">${hora12(h)}</option>`).join('') : '<option value="">Sin cupos</option>';
+}
+$('#btnNuevaCita').onclick = () => {
+  abrirModal(`<h3>Nueva cita</h3>
+    <label>Teléfono WhatsApp (con 57) <input id="nTel" placeholder="573001234567" required></label>
+    <label>Nombre <input id="nNombre"></label>
+    <label>Servicio <select id="nServ">${CFG.servicios.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('')}</select></label>
+    <div class="fila"><label>Fecha <input type="date" id="nFecha" value="${$('#fechaAgenda').value}"></label><label>Hora <select id="nHora"></select></label></div>
+    <label>Notas <input id="nNotas"></label>
+    <div class="fila" style="justify-content:flex-end"><button class="btn" data-cerrar>Cerrar</button><button class="btn primario" id="nGuardar">Agendar</button></div>`);
+  const upd = () => llenarHoras($('#nServ').value, $('#nFecha').value, $('#nHora'));
+  $('#nServ').onchange = upd; $('#nFecha').onchange = upd; upd();
+  $('#nGuardar').onclick = async () => {
+    try {
+      if (!$('#nHora').value) throw new Error('Elige una hora disponible');
+      await api('/api/citas', { method: 'POST', body: { wa_id: $('#nTel').value, nombre: $('#nNombre').value, servicio_id: $('#nServ').value, inicio: `${$('#nFecha').value}T${$('#nHora').value}`, notas: $('#nNotas').value } });
+      cerrarModal(); $('#fechaAgenda').value = $('#nFecha').value; cargarAgenda(); toast('Cita agendada');
+    } catch (err) { toast(err.message); }
+  };
+};
+function modalMover(id, servicio) {
+  abrirModal(`<h3>Mover cita</h3>
+    <div class="fila"><label>Fecha <input type="date" id="mFecha" value="${$('#fechaAgenda').value}"></label><label>Hora <select id="mHora"></select></label></div>
+    <p class="muted" style="margin:0;font-size:12px">Avísale al cliente el nuevo horario por el chat.</p>
+    <div class="fila" style="justify-content:flex-end"><button class="btn" data-cerrar>Cerrar</button><button class="btn primario" id="mGuardar">Mover</button></div>`);
+  const upd = () => llenarHoras(servicio, $('#mFecha').value, $('#mHora'));
+  $('#mFecha').onchange = upd; upd();
+  $('#mGuardar').onclick = async () => {
+    try { await api(`/api/citas/${id}/reprogramar`, { method: 'POST', body: { inicio: `${$('#mFecha').value}T${$('#mHora').value}` } }); cerrarModal(); cargarAgenda(); toast('Cita movida'); }
+    catch (err) { toast(err.message); }
+  };
+}
+
+// ───── CONVERSACIONES
+const ETAPA_CLASE = { 'Nuevo': '', 'Orientado': 'azul', 'Precio enviado': 'azul', 'Cita agendada': 'ok', 'Asistió': 'ok', 'No asistió': 'error', 'Seguimiento': 'alerta', 'Requiere asesora': 'alerta', 'Baja': 'gris' };
+let tBuscar;
+$('#buscarC').oninput = () => { clearTimeout(tBuscar); tBuscar = setTimeout(cargarContactos, 250); };
+async function cargarContactos() {
+  const lista = await api('/api/contactos?q=' + encodeURIComponent($('#buscarC').value));
+  $('#listaContactos').innerHTML = lista.length ? lista.map(c => `<div class="item-c ${c.wa_id === contactoSel ? 'sel' : ''}" data-wa="${esc(c.wa_id)}">
+    <div class="l1"><b>${esc(c.nombre || c.nombre_perfil || tel(c.wa_id))}</b><span class="muted" style="font-size:11px">${c.actividad ? cuando(c.actividad) : ''}</span></div>
+    <div class="fila" style="gap:4px"><span class="pill ${ETAPA_CLASE[c.etapa] || ''}">${esc(c.etapa)}</span>${c.bot_pausado ? '<span class="pill alerta">Atiende asesora</span>' : ''}${c.codigo_anuncio ? `<span class="pill azul">${esc(c.codigo_anuncio)}</span>` : c.ctwa_clid ? '<span class="pill azul">Meta Ads</span>' : ''}</div>
+    <div class="ult">${esc((c.ultimo_mensaje || '').split('\n')[0])}</div></div>`).join('') : '<div class="vacio">Aún no hay conversaciones.</div>';
+  actualizarBadge(lista);
+}
+function actualizarBadge(lista) { const n = lista.filter(c => c.bot_pausado).length; $('#badgeAsesora').textContent = n; $('#badgeAsesora').classList.toggle('oculto', !n); }
+$('#listaContactos').onclick = e => { const it = e.target.closest('.item-c'); if (it) abrirChat(it.dataset.wa); };
+
+async function abrirChat(wa) {
+  contactoSel = wa; ultimoMsgId = 0;
+  document.querySelectorAll('.item-c').forEach(i => i.classList.toggle('sel', i.dataset.wa === wa));
+  const d = await api(`/api/contactos/${encodeURIComponent(wa)}/mensajes`);
+  const c = d.contacto;
+  const proxima = d.citas.find(x => ['agendada', 'confirmada'].includes(x.estado));
+  $('#conv').innerHTML = `
+    <div class="conv-cab">
+      <div class="n"><b>${esc(c.nombre || c.nombre_perfil || 'Sin nombre')}</b><div class="muted" style="font-size:12px">${esc(tel(c.wa_id))}${c.nombre_perfil && c.nombre !== c.nombre_perfil ? ' · perfil: ' + esc(c.nombre_perfil) : ''}</div></div>
+      <select id="selEtapa">${CFG.etapas.map(e => `<option ${e === c.etapa ? 'selected' : ''}>${e}</option>`).join('')}</select>
+      <button class="btn chico" id="btnBot">${c.bot_pausado ? '▶ Reactivar bot' : '⏸ Pausar bot'}</button>
+    </div>
+    <div class="ficha">
+      ${c.bot_pausado ? '<span class="pill alerta">Bot en pausa: responde el equipo</span>' : '<span class="pill ok">Bot activo</span>'}
+      ${c.codigo_anuncio || c.ad_headline || c.ctwa_clid ? `<span>Origen: <b>${esc(c.codigo_anuncio || '')} ${esc(c.ad_headline || '')}</b>${c.ad_id ? ' · ad ' + esc(c.ad_id) : ''}</span>` : '<span>Origen: orgánico / directo</span>'}
+      ${proxima ? `<span>Próxima cita: <b>${fechaLarga(proxima.inicio.slice(0, 10))}, ${hora12(proxima.inicio.slice(11, 16))}</b></span>` : ''}
+      <span>${c.ventana_abierta ? 'Ventana de 24 h abierta' : '⚠️ Ventana de 24 h cerrada (solo plantillas)'}</span>
+    </div>
+    <div class="mensajes" id="mensajes"></div>
+    <div class="enviar"><textarea id="txtManual" placeholder="${c.ventana_abierta ? 'Escribe como equipo (el bot se pausa al responder)…' : 'La ventana de 24 h está cerrada'}" ${c.ventana_abierta ? '' : 'disabled'}></textarea><button class="btn primario" id="btnManual" ${c.ventana_abierta ? '' : 'disabled'}>Enviar</button></div>`;
+  pintarMensajes(d.mensajes, true);
+  $('#selEtapa').onchange = async e => { await api(`/api/contactos/${encodeURIComponent(wa)}/etapa`, { method: 'POST', body: { etapa: e.target.value } }); cargarContactos(); };
+  $('#btnBot').onclick = async () => { await api(`/api/contactos/${encodeURIComponent(wa)}/bot`, { method: 'POST', body: { pausado: !c.bot_pausado } }); abrirChat(wa); cargarContactos(); };
+  const enviar = async () => {
+    const t = $('#txtManual').value.trim(); if (!t) return;
+    try { await api(`/api/contactos/${encodeURIComponent(wa)}/mensaje`, { method: 'POST', body: { texto: t } }); $('#txtManual').value = ''; refrescarChat(); }
+    catch (err) { toast(err.message); }
+  };
+  $('#btnManual').onclick = enviar;
+  $('#txtManual').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); } };
+}
+function pintarMensajes(ms, reset) {
+  const cont = $('#mensajes'); if (!cont) return;
+  if (reset) cont.innerHTML = '';
+  for (const m of ms) {
+    ultimoMsgId = Math.max(ultimoMsgId, m.id);
+    const cls = m.direccion === 'in' ? 'in' : 'out' + (m.autor === 'equipo' ? ' equipo' : '');
+    const quien = m.direccion === 'in' ? '' : (m.autor === 'equipo' ? 'Equipo · ' : m.autor === 'sistema' ? 'Sistema · ' : 'Bot · ');
+    cont.insertAdjacentHTML('beforeend', `<div class="burbuja ${cls}">${negrita(m.cuerpo)}<span class="meta">${quien}${cuando(m.ts)}</span></div>`);
+  }
+  if (ms.length) cont.scrollTop = cont.scrollHeight;
+}
+async function refrescarChat() {
+  if (!contactoSel || vista !== 'chats') return;
+  const d = await api(`/api/contactos/${encodeURIComponent(contactoSel)}/mensajes?desde=${ultimoMsgId}`);
+  pintarMensajes(d.mensajes);
+}
+
+// ───── RESULTADOS
+document.querySelectorAll('[data-rango]').forEach(b => b.onclick = () => { $('#mHasta').value = CFG.hoy; $('#mDesde').value = sumarDias(CFG.hoy, -(Number(b.dataset.rango) - 1)); cargarMetricas(); });
+$('#mDesde').onchange = cargarMetricas; $('#mHasta').onchange = cargarMetricas;
+async function cargarMetricas() {
+  const r = await api(`/api/resumen?desde=${$('#mDesde').value}&hasta=${$('#mHasta').value}`);
+  const pct = v => (v == null ? '—' : v.toLocaleString('es-CO') + ' %');
+  const k = [
+    ['Conversaciones nuevas', r.conversaciones, `${r.desde_anuncio} desde anuncios`],
+    ['Citas agendadas', r.citas_agendadas, `${r.citas_por_bot} por el bot · ${r.citas_canceladas} canceladas`],
+    ['Conversación → cita', pct(r.tasa_conversacion_a_cita), 'personas con cita / conversaciones'],
+    ['Asistieron', r.asistieron, `${r.no_asistieron} no asistieron`],
+    ['Tasa de asistencia', pct(r.tasa_asistencia), r.pendientes_marcar ? `${r.pendientes_marcar} citas pasadas sin marcar` : 'citas marcadas'],
+    ['Ingresos cobrados', pesos(r.ingresos), 'registrados al marcar asistencia'],
+    ['Esperan asesora', r.requieren_asesora, 'conversaciones con bot en pausa'],
+  ];
+  $('#kpis').innerHTML = k.map(([a, b, c]) => `<div class="tarjeta kpi"><small>${a}</small><b>${b}</b><br><span>${esc(c)}</span></div>`).join('');
+  $('#tablaAnuncios').innerHTML = r.por_anuncio.length ? `<table><tr><th>Origen</th><th class="num">Conversaciones</th><th class="num">Con cita</th><th class="num">Conv. → cita</th><th class="num">Asistieron</th><th class="num">Ingresos</th></tr>${r.por_anuncio.map(a => `<tr><td>${esc(a.origen)}</td><td class="num">${a.conversaciones}</td><td class="num">${a.con_cita}</td><td class="num">${a.conversaciones ? Math.round(a.con_cita / a.conversaciones * 100) + ' %' : '—'}</td><td class="num">${a.asistieron}</td><td class="num">${pesos(a.ingresos)}</td></tr>`).join('')}</table>` : '<div class="vacio">Sin datos en el periodo</div>';
+  $('#tablaServicios').innerHTML = r.por_servicio.length ? `<table><tr><th>Servicio</th><th class="num">Agendadas</th><th class="num">Canceladas</th><th class="num">Asistieron</th></tr>${r.por_servicio.map(s => `<tr><td>${esc(s.servicio)}</td><td class="num">${s.agendadas}</td><td class="num">${s.canceladas}</td><td class="num">${s.asistieron}</td></tr>`).join('')}</table>` : '<div class="vacio">Sin citas en el periodo</div>';
+  const max = Math.max(1, ...Object.values(r.etapas));
+  $('#etapas').innerHTML = CFG.etapas.filter(e => r.etapas[e]).map(e => `<div class="barra-etapa"><span>${esc(e)}</span><div class="b" style="width:${Math.max(4, r.etapas[e] / max * 100)}%"></div><span class="num">${r.etapas[e]}</span></div>`).join('') || '<div class="vacio">Sin datos</div>';
+}
+
+// ───── AJUSTES
+async function cargarAjustes() {
+  const ok = (b, si, no) => `<span class="pill ${b ? 'ok' : 'alerta'}">${b ? si : no}</span>`;
+  $('#integraciones').innerHTML = `
+    <div class="fila">WhatsApp Cloud API ${ok(!CFG.simulacion, 'Conectado', 'Modo simulación')}</div>
+    <div class="fila">Conversions API (citas → Meta Ads) ${ok(CFG.capi, 'Activa', 'Sin configurar')}</div>
+    <div class="fila">IA para preguntas libres ${ok(CFG.ia, 'Activa', 'Apagada (solo reglas)')}</div>
+    <div class="muted" style="font-size:12.5px">URL del webhook para Meta: <code>${esc(CFG.webhook)}</code></div>
+    ${CFG.simulador ? '<div><a class="btn chico" href="/simulador" target="_blank">Abrir simulador de chat</a></div>' : ''}`;
+  $('#tablaConfigServicios').innerHTML = `<table><tr><th>Servicio</th><th class="num">Min</th><th>Precio</th><th>Recurso</th></tr>${CFG.servicios.map(s => `<tr><td>${esc(s.nombre)}${s.requiere_valoracion ? ' <span class="pill alerta">valoración</span>' : ''}</td><td class="num">${s.duracion_min}</td><td>${s.precio ? pesos(s.precio) : '<span class="pill alerta">por confirmar</span>'}</td><td>${esc(s.recurso)} (${CFG.negocio.recursos[s.recurso] ?? 1})</td></tr>`).join('')}</table>
+    <p class="muted" style="font-size:12px;padding:0 14px">Se editan en <code>config/servicios.json</code> y <code>config/negocio.json</code> (reiniciar el servidor).</p>`;
+  $('#bRecurso').innerHTML = '<option value="">Todos</option>' + Object.keys(CFG.negocio.recursos).filter(k => !k.startsWith('_')).map(r => `<option>${esc(r)}</option>`).join('');
+  const bl = await api('/api/bloqueos');
+  $('#listaBloqueos').innerHTML = bl.length ? `<table><tr><th>Desde</th><th>Hasta</th><th>Recurso</th><th>Motivo</th><th></th></tr>${bl.map(b => `<tr><td>${esc(b.inicio.replace('T', ' '))}</td><td>${esc(b.fin.replace('T', ' '))}</td><td>${esc(b.recurso || 'Todos')}</td><td>${esc(b.motivo || '')}</td><td class="num"><button class="btn chico peligro" data-borrar="${b.id}">Quitar</button></td></tr>`).join('')}</table>` : '<div class="vacio">Sin bloqueos próximos</div>';
+  const ev = await api('/api/capi');
+  $('#tablaCapi').innerHTML = ev.length ? `<table><tr><th>Fecha</th><th>Evento</th><th>Estado</th><th>Valor</th><th>Detalle</th></tr>${ev.map(e => `<tr><td>${cuando(e.ts)}</td><td>${esc(e.evento)}</td><td><span class="pill ${e.estado === 'enviado' ? 'ok' : e.estado === 'error' ? 'error' : 'alerta'}">${esc(e.estado)}</span></td><td>${e.payload.custom_data ? pesos(e.payload.custom_data.value) : '—'}</td><td class="muted" style="font-size:11.5px;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.respuesta || '')}</td></tr>`).join('')}</table>` : '<div class="vacio">Aún no hay eventos. Se generan cuando alguien que llegó por un anuncio agenda o asiste.</div>';
+}
+$('#listaBloqueos').onclick = async e => { const b = e.target.closest('[data-borrar]'); if (b) { await api('/api/bloqueos/' + b.dataset.borrar, { method: 'DELETE' }); cargarAjustes(); } };
+$('#formBloqueo').onsubmit = async e => {
+  e.preventDefault();
+  try { await api('/api/bloqueos', { method: 'POST', body: { inicio: $('#bDesde').value.slice(0, 16), fin: $('#bHasta').value.slice(0, 16), recurso: $('#bRecurso').value, motivo: $('#bMotivo').value } }); e.target.reset(); cargarAjustes(); toast('Bloqueo creado'); }
+  catch (err) { toast(err.message); }
+};
+$('#btnTareas').onclick = async () => { const r = await api('/api/tareas', { method: 'POST' }); toast(`Recordatorios: ${r.recordatorios ?? 0} · Seguimientos: ${r.seguimientos ?? 0}`); };
+
+// ───── Inicio
+async function iniciar() {
+  try { CFG = await api('/api/config'); } catch { return; }
+  $('#app').classList.remove('oculto');
+  $('#estadoTop').innerHTML = (CFG.simulacion ? '<span class="pill alerta">Modo simulación</span>' : '<span class="pill ok">WhatsApp conectado</span>') + (CFG.capi ? '<span class="pill ok">CAPI</span>' : '');
+  if (CFG.negocio.pendientes_confirmar?.length) {
+    $('#avisoPendientes').innerHTML = `<b>Antes de activar la pauta</b>, confirma con el centro: ${CFG.negocio.pendientes_confirmar.map(esc).join(', ')}. Mientras tanto el bot no muestra precios sin confirmar.`;
+    $('#avisoPendientes').classList.remove('oculto');
+  }
+  $('#fechaAgenda').value = CFG.hoy;
+  $('#mHasta').value = CFG.hoy; $('#mDesde').value = sumarDias(CFG.hoy, -29);
+  irA('agenda');
+  api('/api/contactos').then(actualizarBadge).catch(() => {});
+  setInterval(() => { if (document.hidden) return; if (vista === 'chats') { refrescarChat(); cargarContactos(); } else if (vista === 'agenda') cargarAgenda(); }, 5000);
+}
+iniciar();
+</script>
+</body>
+</html>

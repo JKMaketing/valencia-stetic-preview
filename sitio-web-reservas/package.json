@@ -1,0 +1,25 @@
+{
+  "name": "valencia-stetic-sitio-web-reservas",
+  "version": "1.0.0",
+  "description": "Espacio de trabajo del sitio web de reservas de Valencia Stetic (se ejecuta dentro de ../sistema-agendamiento)",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "servidor": "npm --prefix ../sistema-agendamiento start",
+    "estado": "node sincronizar.mjs estado",
+    "publicar": "node sincronizar.mjs publicar",
+    "publicar:probar": "node sincronizar.mjs publicar --probar",
+    "traer": "node sincronizar.mjs traer",
+    "pruebas": "npm --prefix ../sistema-agendamiento test",
+    "demo": "node demo.mjs",
+    "demo:publico": "node demo.mjs --publico",
+    "demo:iniciar": "node demo.mjs iniciar --publico",
+    "demo:local": "node demo.mjs iniciar",
+    "demo:estado": "node demo.mjs estado",
+    "demo:enlace": "node demo.mjs enlace",
+    "demo:parar": "node demo.mjs parar"
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "_nota": "Datos del centro. Todo lo marcado en 'pendientes_confirmar' debe validarlo Valencia Stetic antes de activar la pauta.",
+  "pendientes_confirmar": [
+    "validar los 49 textos breves de servicios (descripción para la web y SEO) y la lista de precios cargada el 10 nov 2026; servicios con valor variable: mesoterapia facial (según ampolla), cauterización (por zona y cantidad), remoción de tatuajes (por tamaño) y sueroterapia (según el suero)",
+    "duraciones reales de los servicios: por ahora cada servicio ocupa 30 min de agenda",
+    "paquetes (pack reductor, reductor pro, pack celulitis, masaje postoperatorio x10 y x20): se agenda la primera sesión; definir cuántas sesiones tiene cada pack y cómo se agendan las demás",
+    "«Spa coreano» (id spa_capilar): confirmar si es el spa capilar y qué incluye",
+    "validar «Más de 10 años de experiencia» (la pidió el equipo de proyecto; el sitio de Google del centro dice «Más de 5 años») antes de mantenerla en la web",
+    "sitio de Google del centro: tiene horario distinto al del Perfil de Google (lun–vie 8–19 y sáb 9–17) y un teléfono con un dígito distinto (315…); conviene corregirlo",
+    "línea de WhatsApp para el bot (el 314 530 1120 es solo teléfono de llamadas; mientras no exista, web.whatsapp queda en null y la página no muestra el botón de WhatsApp)",
+    "capacidad (cabinas / equipos) por servicio",
+    "política de cambios y cancelaciones",
+    "festivos y días cerrados",
+    "nombre del asesor/a que firma los mensajes",
+    "política de tratamiento de datos personales (Ley 1581) que se enlaza en la página de reservas",
+    "fotos del centro y permiso de uso de imagen para la galería de la página",
+    "comodidades que se quieran mostrar (medios de pago, parqueadero, Wi-Fi…)",
+    "horas mínimas de anticipación para cambiar o cancelar (agenda.cambios_hasta_horas)"
+  ],
+  "nombre": "Valencia Stetic",
+  "ciudad": "Pereira",
+  "direccion": "Calle 8 #12-59, Pereira",
+  "como_llegar": "",
+  "asesor": "el equipo de Valencia Stetic",
+  "zona_horaria_offset": "-05:00",
+  "moneda": "COP",
+  "horario": {
+    "0": null,
+    "1": [
+      "08:00",
+      "18:00"
+    ],
+    "2": [
+      "08:00",
+      "18:00"
+    ],
+    "3": [
+      "08:00",
+      "18:00"
+    ],
+    "4": [
+      "08:00",
+      "18:00"
+    ],
+    "5": [
+      "08:00",
+      "18:00"
+    ],
+    "6": [
+      "08:00",
+      "15:00"
+    ],
+    "_nota": "0=domingo ... 6=sábado. null = cerrado. Formato HH:MM 24h."
+  },
+  "horario_texto": "lunes a viernes de 8:00 a. m. a 6:00 p. m. y sábados de 8:00 a. m. a 3:00 p. m.",
+  "dias_cerrados": [
+    "2026-11-16",
+    "2026-12-08",
+    "2026-12-25",
+    "2027-01-01",
+    "2027-01-11",
+    "2027-03-22"
+  ],
+  "agenda": {
+    "intervalo_min": 30,
+    "anticipacion_min": 120,
+    "dias_adelante": 14,
+    "pausa_entre_citas_min": 10,
+    "max_citas_activas_por_cliente": 2,
+    "cambios_hasta_horas": null
+  },
+  "recursos": {
+    "_nota": "Cuántas citas simultáneas admite cada recurso (cabinas, camillas, equipos).",
+    "cabina": 1,
+    "laser": 1
+  },
+  "politica_cambios": "Si necesitas cambiar o cancelar tu cita, avísanos por este chat con al menos 3 horas de anticipación.",
+  "indicaciones_generales": "Te recomendamos llegar 10 minutos antes.",
+  "seguimiento": {
+    "seguimiento_1_horas": 20,
+    "seguimiento_2_horas": 72,
+    "seguimiento_2_activo": true,
+    "recordatorio_horas_antes": 24,
+    "recordatorio_corto_horas_antes": 2,
+    "gracias_post_visita": true
+  },
+  "plantillas": {
+    "_nota": "Nombres de plantillas aprobadas en WhatsApp Manager (ver plantillas/PLANTILLAS_WHATSAPP.md). Vacío = no se usa.",
+    "recordatorio_cita": "recordatorio_cita_vs",
+    "seguimiento_consulta": "seguimiento_consulta_vs",
+    "gracias_visita": "gracias_visita_vs",
+    "aviso_equipo": "aviso_equipo_vs",
+    "cita_web": "cita_web_vs"
+  },
+  "faq": [
+    {
+      "id": "ubicacion",
+      "claves": [
+        "donde",
+        "dónde",
+        "direccion",
+        "dirección",
+        "ubicacion",
+        "ubicación",
+        "ubicados",
+        "quedan",
+        "llegar",
+        "mapa",
+        "barrio"
+      ],
+      "respuesta": "Estamos en {direccion}. {como_llegar}"
+    },
+    {
+      "id": "horario",
+      "claves": [
+        "horario",
+        "horarios",
+        "abren",
+        "cierran",
+        "atienden",
+        "hora abren",
+        "domingo",
+        "festivo"
+      ],
+      "respuesta": "Atendemos {horario_texto}."
+    },
+    {
+      "id": "pago",
+      "claves": [
+        "pago",
+        "pagar",
+        "tarjeta",
+        "nequi",
+        "daviplata",
+        "transferencia",
+        "efectivo",
+        "abono"
+      ],
+      "respuesta": "Los medios de pago te los confirma el equipo al momento de tu cita."
+    },
+    {
+      "id": "parqueadero",
+      "claves": [
+        "parqueadero",
+        "parqueo",
+        "parquear",
+        "carro",
+        "moto"
+      ],
+      "respuesta": "Sobre parqueadero te orienta el equipo cuando confirmes tu cita."
+    }
+  ],
+  "palabras_asesora": [
+    "asesora",
+    "asesor",
+    "humano",
+    "persona",
+    "hablar con alguien",
+    "llamar",
+    "llamada",
+    "agente",
+    "operador"
+  ],
+  "palabras_sensibles": [
+    "embaraz",
+    "lactan",
+    "cirug",
+    "operaci",
+    "postoperatori",
+    "post operatori",
+    "lipo",
+    "medicament",
+    "enfermedad",
+    "diabet",
+    "cancer",
+    "cáncer",
+    "alergi",
+    "herida",
+    "infecci",
+    "marcapaso",
+    "anticoagul",
+    "tratamiento medico",
+    "tratamiento médico"
+  ],
+  "palabras_baja": [
+    "no me escriban",
+    "no quiero mensajes",
+    "no mas mensajes",
+    "no más mensajes",
+    "dejen de escribir",
+    "stop",
+    "darme de baja",
+    "eliminar mis datos",
+    "borrar mis datos"
+  ],
+  "web": {
+    "_nota": "Datos de la página pública de reservas (/reservas). null o lista vacía = no se muestra. Nada de aquí se inventa: se completa cuando el centro lo confirme. opiniones: copiadas a mano de Google Maps (solo reseñas de los últimos 365 días, 5 estrellas, sin editar); alternativa automática: API de Places (requiere clave de Google Cloud).",
+    "whatsapp": null,
+    "instagram": "https://www.instagram.com/valenciastetic/",
+    "frase": "Centro Estético en Pereira",
+    "descripcion": "Un espacio para hacer una pausa y cuidarte, con orientación del equipo para elegir lo que mejor se ajuste a ti.",
+    "comodidades": [],
+    "galeria": [],
+    "mapa_url": "https://www.google.com/maps/dir/?api=1&destination=4.8088651,-75.6854501",
+    "privacidad_url": null,
+    "telefono": "+573145301120",
+    "coordenadas": {
+      "lat": 4.8088651,
+      "lng": -75.6854501
+    },
+    "opiniones": {
+      "fuente": "Google",
+      "puntuacion": 4.9,
+      "total": 145,
+      "enlace": "https://www.google.com/maps/place/Valencia+Stetic/@4.8088651,-75.6854501,17z/data=!4m6!3m5!1s0x8e3887395cdf34a3:0xc776f78e3b4b8577!8m2!3d4.8088651!4d-75.6854501!16s%2Fg%2F11kmp3cz5l",
+      "leido": "2026-11-06",
+      "items": [
+        {
+          "autor": "Bryan",
+          "estrellas": 5,
+          "fecha": "una semana atrás",
+          "texto": "Buenísimo, todo es increíble, desde que se entra por la puerta la atención es inigualable, personalizada y pendientes de lo que uno desee en cada momento, las chicas Angie, Francia y María José lo hacen sentir a uno cómodo y le dan un trato personalizado, el masaje relajante es fantástico, me dejó como nuevo fue algo increíble lo recomiendo a cualquier persona, además del masaje ofrecen muchos otros tratamientos ideales para toda persona que se quiera cuidar, sentirse bien o para regalar la mejor experiencia a cualquier ser amado."
+        },
+        {
+          "autor": "Camila Ospina",
+          "estrellas": 5,
+          "fecha": "Hace 5 meses",
+          "texto": "Excelente servicio y mucho profesionalismo. La limpieza facial superó totalmente mis expectativas; es un procedimiento muy completo y realizado con muchísimo cuidado. Desde la atención hasta el resultado final, todo fue excelente. Sin duda, una experiencia que recomendaría."
+        },
+        {
+          "autor": "Lizeth Rozo",
+          "estrellas": 5,
+          "fecha": "Hace 10 meses",
+          "texto": "Me encanta este lugar. El personal es super profesional y son muy amables y atentas. Sin duda trabajan super bien y por lo tanto recomiendo mucho este centro estético."
+        }
+      ]
+    },
+    "confianza": "Más de 10 años de experiencia",
+    "facebook": "https://www.facebook.com/valenciasteticpereira"
+  }
+}

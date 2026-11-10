@@ -1,0 +1,696 @@
+<title>Agenda Valencia Stetic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: guía del recorrido · teléfono de la clienta · panel del equipo, lado a lado; se apilan en móvil */
+:root {
+  --bg: #F3F7F8;
+  --surface: #FFFFFF;
+  --ink: #22313A;
+  --muted: #62727A;
+  --line: #DAE4E7;
+  --accent: #00B7E6;
+  --accent-ink: #00799A;
+  --accent-soft: #E2F5FB;
+  --ok: #1B8F58;
+  --ok-soft: #E2F4EA;
+  --warn: #B26B00;
+  --warn-soft: #FFF2DA;
+  --bad: #B8382E;
+  --bad-soft: #FBE6E4;
+  --frame: #1C2A31;
+  --chat: #E7F1F3;
+  --bubble-in: #FFFFFF;
+  --bubble-out: #D5F1FA;
+  --phone-head: #00799A;
+  --on-accent: #FFFFFF;
+  --f-body: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data: "DM Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F171B; --surface: #172227; --ink: #E3ECEF; --muted: #93A4AB; --line: #2A3A41;
+  --accent: #2CC6EE; --accent-ink: #6FD8F3; --accent-soft: #123842;
+  --ok: #5BCB91; --ok-soft: #173326; --warn: #F0B056; --warn-soft: #3A2C12; --bad: #F08A80; --bad-soft: #3D1E1B;
+  --frame: #05090B; --chat: #10201F; --bubble-in: #1D2B30; --bubble-out: #12424F; --phone-head: #0B5266; --on-accent: #FFFFFF;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F171B; --surface: #172227; --ink: #E3ECEF; --muted: #93A4AB; --line: #2A3A41;
+  --accent: #2CC6EE; --accent-ink: #6FD8F3; --accent-soft: #123842;
+  --ok: #5BCB91; --ok-soft: #173326; --warn: #F0B056; --warn-soft: #3A2C12; --bad: #F08A80; --bad-soft: #3D1E1B;
+  --frame: #05090B; --chat: #10201F; --bubble-in: #1D2B30; --bubble-out: #12424F; --phone-head: #0B5266; --on-accent: #FFFFFF;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Encabezado */
+.top { background: var(--surface); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-block: 14px; }
+.mark { width: 40px; height: 40px; border-radius: 12px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 600; letter-spacing: .02em; flex: none; }
+.top h1 { font-size: 17px; font-weight: 600; margin: 0; line-height: 1.25; text-wrap: balance; }
+.top p { margin: 0; color: var(--muted); font-size: 12.5px; }
+.top .grow { flex: 1 1 260px; min-width: 0; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--warn-soft); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent); }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 500; transition: border-color .15s, color .15s, background .15s; }
+.btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-ink); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.primary:hover:not(:disabled) { background: var(--accent-ink); border-color: var(--accent-ink); color: var(--on-accent); }
+.btn.small { padding: 5px 10px; font-size: 12px; border-radius: 8px; }
+
+/* Rejilla principal */
+.app { display: grid; grid-template-columns: 280px 384px minmax(0, 1fr); gap: 24px; padding-block: 24px; align-items: start; }
+@media (max-width: 1180px) { .app { grid-template-columns: 384px minmax(0, 1fr); } .guide { grid-column: 1 / -1; } .guide .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 18px; } }
+@media (max-width: 820px) { .app { grid-template-columns: minmax(0, 1fr); } }
+
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin: 0 0 10px; }
+
+/* Guía */
+.guide { display: grid; gap: 20px; min-width: 0; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; counter-increment: s; }
+.steps li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; border: 1.5px solid var(--line); color: var(--muted); background: var(--surface); }
+.steps li.done::before { content: "✓"; background: var(--ok); border-color: var(--ok); color: var(--on-accent); }
+.steps li.now::before { border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 0 4px var(--accent-soft); }
+.steps b { display: block; font-weight: 600; font-size: 13.5px; }
+.steps span { color: var(--muted); font-size: 12.5px; display: block; }
+.steps .btn { margin-top: 6px; }
+.ads { display: grid; gap: 8px; }
+@media (max-width: 1180px) { .ads { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } }
+.ad { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 12px; display: grid; gap: 2px; transition: border-color .15s, box-shadow .15s; }
+.ad:hover { border-color: var(--accent); }
+.ad.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ad .code { font-family: var(--f-data); font-size: 11px; color: var(--accent-ink); }
+.ad strong { font-size: 13.5px; font-weight: 600; }
+.ad small { color: var(--muted); font-size: 12px; }
+
+/* Teléfono */
+.phone-col { display: grid; gap: 10px; justify-items: center; min-width: 0; position: sticky; top: 12px; }
+@media (max-width: 820px) { .phone-col { position: static; } }
+.phone { width: 100%; max-width: 384px; height: clamp(460px, calc(100vh - 110px), 720px); height: clamp(460px, calc(100dvh - 110px), 720px); border: 10px solid var(--frame); border-radius: 40px; background: var(--chat); overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 0 24px 48px -24px rgba(10, 40, 50, .35); }
+@media (max-width: 820px) { .phone { height: clamp(480px, calc(100dvh - 40px), 680px); } }
+.p-head { background: var(--phone-head); color: #fff; display: flex; align-items: center; gap: 10px; padding: 14px 14px 12px; }
+.p-head .av { width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--phone-head); display: grid; place-items: center; font-weight: 600; font-size: 13px; flex: none; }
+.p-head b { display: block; font-size: 14px; font-weight: 600; line-height: 1.2; }
+.p-head small { font-size: 11.5px; opacity: .85; }
+.chat { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
+.msg { max-width: 86%; padding: 8px 10px 5px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; box-shadow: 0 1px 1px rgba(0,0,0,.06); overflow-wrap: anywhere; }
+.msg.in { align-self: flex-end; background: var(--bubble-out); border-top-right-radius: 4px; }
+.msg.out { align-self: flex-start; background: var(--bubble-in); border-top-left-radius: 4px; }
+.msg .t { display: block; text-align: right; font-size: 10.5px; color: var(--muted); margin-top: 2px; font-family: var(--f-data); }
+.msg .tag { display: inline-block; font-size: 10.5px; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); border-radius: 6px; padding: 1px 6px; margin-bottom: 4px; }
+.msg .tag.team { color: var(--ok); background: var(--ok-soft); }
+.card { border-left: 3px solid var(--accent); padding: 2px 0 2px 8px; margin-bottom: 6px; }
+.card b { display: block; font-weight: 600; }
+.card div { font-size: 12.5px; color: var(--muted); }
+.qr { display: grid; gap: 6px; margin-top: 8px; }
+.qr button, .lst { border: 1px solid var(--line); background: var(--surface); color: var(--accent-ink); border-radius: 10px; padding: 7px 10px; font-size: 13px; font-weight: 500; text-align: center; }
+.qr button:hover:not(:disabled), .lst:hover:not(:disabled) { border-color: var(--accent); }
+.qr button:disabled, .lst:disabled { color: var(--muted); cursor: default; opacity: .7; }
+.lst { width: 100%; margin-top: 8px; }
+.lst::before { content: "☰  "; }
+.divider { align-self: center; font-size: 11.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; border-radius: 999px; text-align: center; max-width: 92%; }
+.typing { align-self: flex-start; background: var(--bubble-in); border-radius: 12px; padding: 10px 14px; display: flex; gap: 4px; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: dot 1s infinite ease-in-out; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+.composer { display: flex; gap: 8px; padding: 10px; background: var(--surface); border-top: 1px solid var(--line); }
+.composer input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; background: var(--bg); outline: none; }
+.composer input:focus { border-color: var(--accent); }
+.composer button { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--accent); color: var(--on-accent); font-size: 16px; flex: none; }
+.sheet { position: absolute; inset: 0; background: rgba(8, 20, 26, .45); display: flex; align-items: flex-end; z-index: 5; }
+.sheet .in { background: var(--surface); width: 100%; border-radius: 18px 18px 0 0; max-height: 75%; overflow-y: auto; padding: 8px 0 12px; }
+.sheet h3 { margin: 6px 16px 8px; font-size: 14px; font-weight: 600; }
+.sheet button.row { display: block; width: 100%; text-align: left; border: none; border-top: 1px solid var(--line); background: none; padding: 11px 16px; }
+.sheet button.row:hover { background: var(--accent-soft); }
+.sheet button.row b { display: block; font-weight: 500; font-size: 13.5px; }
+.sheet button.row small { color: var(--muted); font-size: 12px; }
+.sheet .close { display: block; margin: 10px auto 0; }
+.phone-note { color: var(--muted); font-size: 12px; text-align: center; max-width: 360px; margin: 0; }
+.phone-note code { font-family: var(--f-data); font-size: 11.5px; background: var(--surface); border: 1px solid var(--line); padding: 1px 5px; border-radius: 5px; }
+
+/* Panel del equipo */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; min-width: 0; overflow: hidden; }
+.p-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 18px 0; }
+.p-top h2 { font-size: 15px; margin: 0; font-weight: 600; flex: 1 1 auto; }
+.tabs { display: flex; gap: 4px; padding: 10px 14px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { border: none; background: none; padding: 9px 12px; font-size: 13px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab.on { color: var(--accent-ink); border-bottom-color: var(--accent); }
+.tab .n { font-family: var(--f-data); font-size: 11px; background: var(--accent-soft); color: var(--accent-ink); border-radius: 999px; padding: 0 6px; margin-left: 4px; }
+.pbody { padding: 16px 18px 20px; display: grid; gap: 14px; }
+.alert { border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); background: var(--warn-soft); color: var(--ink); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.alert b { color: var(--warn); }
+.alert .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.legend { color: var(--muted); font-size: 12.5px; margin: 0; }
+.days { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.day { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; gap: 8px; align-content: start; }
+.day h3 { margin: 0; font-size: 12.5px; font-weight: 600; text-transform: capitalize; display: flex; justify-content: space-between; gap: 8px; }
+.day h3 span { color: var(--muted); font-weight: 400; text-transform: none; }
+.empty { color: var(--muted); font-size: 12.5px; padding: 4px 0; }
+.cita { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 4px 8px; padding: 8px; border-radius: 10px; background: var(--bg); }
+.cita time { font-family: var(--f-data); font-size: 12px; color: var(--ink); padding-top: 1px; }
+.cita b { font-weight: 600; font-size: 13px; display: block; overflow-wrap: anywhere; }
+.cita .svc { font-size: 12px; color: var(--muted); display: block; }
+.cita .pills { grid-column: 2; display: flex; gap: 4px; flex-wrap: wrap; }
+.cita.demo { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.cita.demo.flash { animation: flash 1.2s ease-out 1; }
+@keyframes flash { 0% { box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 0 var(--accent); } 100% { box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 10px transparent; } }
+.cita .acts { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.cita .acts label { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.cita .acts input { width: 96px; border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; background: var(--surface); font-family: var(--f-data); font-size: 12px; }
+.pill { display: inline-block; font-size: 10.5px; font-weight: 500; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); white-space: nowrap; }
+.pill.ad { color: var(--accent-ink); background: var(--accent-soft); border-color: transparent; }
+.pill.ok { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
+.pill.warn { color: var(--warn); background: var(--warn-soft); border-color: transparent; }
+.pill.bad { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
+.pill.ex { font-style: italic; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.kpi { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.kpi small { display: block; color: var(--muted); font-size: 11.5px; }
+.kpi strong { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 12.5px; }
+th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; background: var(--bg); }
+th:first-child, td:first-child { text-align: left; }
+tr:last-child td { border-bottom: none; }
+td .bar { display: inline-block; height: 6px; border-radius: 3px; background: var(--accent); vertical-align: middle; margin-left: 6px; }
+tr.best td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
+.insight { border-radius: 12px; background: var(--ok-soft); padding: 12px 14px; font-size: 13px; }
+.insight b { color: var(--ok); }
+.events { display: grid; gap: 8px; }
+.ev { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.ev code { font-family: var(--f-data); font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-ink); }
+.ev code.buy { background: var(--ok-soft); color: var(--ok); }
+.ev span { font-size: 12.5px; overflow-wrap: anywhere; }
+.ev time { font-family: var(--f-data); font-size: 11px; color: var(--muted); }
+.explain { font-size: 13px; color: var(--muted); margin: 0; max-width: 70ch; }
+
+.foot { padding-block: 8px 40px; }
+.foot .box { border-top: 1px solid var(--line); padding-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 28px; }
+.foot h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+.foot p { margin: 0; color: var(--muted); font-size: 12.5px; max-width: 60ch; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="mark" aria-hidden="true">VS</div>
+    <div class="grow">
+      <h1>Agendamiento automático por WhatsApp · Valencia Stetic</h1>
+      <p>Así atiende y agenda el asistente a las personas que llegan desde los anuncios de Meta, y así lo ve el equipo del centro.</p>
+    </div>
+    <span class="chip">Demo con datos de ejemplo</span>
+    <button class="btn" id="reset" type="button">Reiniciar demo</button>
+  </div>
+</header>
+
+<main class="wrap app">
+  <aside class="guide" aria-label="Recorrido de la demo">
+    <div>
+      <p class="eyebrow">Recorrido</p>
+      <ol class="steps" id="steps"></ol>
+    </div>
+    <div>
+      <p class="eyebrow">¿Desde qué anuncio llega?</p>
+      <div class="ads" id="ads"></div>
+    </div>
+  </aside>
+
+  <section class="phone-col" aria-label="Celular de la clienta">
+    <div class="phone">
+      <div class="p-head">
+        <div class="av">VS</div>
+        <div><b>Valencia Stetic</b><small>Cuenta de empresa · responde al instante</small></div>
+      </div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <form class="composer" id="composer" autocomplete="off">
+        <input id="txt" type="text" placeholder="Escribe como si fueras la clienta…" aria-label="Mensaje de la clienta">
+        <button type="submit" aria-label="Enviar">➤</button>
+      </form>
+      <div class="sheet" id="sheet" hidden></div>
+    </div>
+    <p class="phone-note">Puedes tocar los botones o escribir libremente, por ejemplo <code>quiero el sábado a las 10</code>, <code>¿cuánto vale?</code>, <code>¿dónde quedan?</code> o <code>quiero hablar con una asesora</code>.</p>
+  </section>
+
+  <section class="panel" aria-label="Panel del equipo">
+    <div class="p-top"><h2>Panel del equipo</h2><span class="pill">Lo que ve Valencia Stetic</span></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="pbody" id="pbody"></div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <div class="box">
+    <div><h4>Qué es real en esta demo</h4><p>El flujo de conversación, la agenda sin cruces y los mensajes son los mismos del sistema construido. En producción corre en el WhatsApp del centro, conectado a la API oficial de Meta.</p></div>
+    <div><h4>Qué es de ejemplo</h4><p>Las citas de otras clientas, las cifras de resultados y los precios. Los valores reales los define Valencia Stetic; mientras tanto el asistente dice que el equipo confirma el valor.</p></div>
+    <div><h4>Por qué medir la asistencia</h4><p>Cada cita y cada visita pagada se reportan a Meta. Así la campaña aprende a buscar personas que agendan y asisten, no solo personas que escriben.</p></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+/* ---------- Datos del centro (iguales a la configuración del sistema) ---------- */
+const NEG = {
+  direccion: 'Calle 8 #12-59, Pereira',
+  horario: 'lunes a viernes de 9:00 a. m. a 7:00 p. m. y sábados de 9:00 a. m. a 2:00 p. m.',
+  politica: 'Si necesitas cambiar o cancelar tu cita, avísanos por este chat con al menos 3 horas de anticipación.'
+};
+const HOR = { 0: null, 1: [540, 1140], 2: [540, 1140], 3: [540, 1140], 4: [540, 1140], 5: [540, 1140], 6: [540, 840] };
+const FESTIVOS = ['2026-11-16', '2026-12-08', '2026-12-25', '2027-01-01', '2027-01-11', '2027-03-22'];
+const SERV = [
+  { id: 'facial', nombre: 'Cuidado facial', dur: 60, recurso: 'cabina', claves: /facial|limpieza|rostro|cara|piel/, desc: 'Un momento de cuidado facial a tu ritmo, con orientación del equipo para elegir la opción que mejor se ajuste a ti.', incluye: 'Valoración breve de tu piel y el protocolo facial que elijas con el equipo.', indic: 'Si es posible, llega sin maquillaje.' },
+  { id: 'masaje', nombre: 'Masaje relajante', dur: 60, recurso: 'cabina', claves: /masaje|relaja|estres|tension|espalda/, desc: 'Una pausa para ti: masaje relajante en un espacio tranquilo.', incluye: 'Masaje relajante con aceites en cabina privada.', indic: 'Usa ropa cómoda.' },
+  { id: 'spa_capilar', nombre: 'Spa capilar coreano', dur: 90, recurso: 'cabina', claves: /capilar|cabello|pelo|cuero cabelludo|head spa|coreano/, desc: 'Un ritual de cuidado para tu cabello y cuero cabelludo, para conocer con calma.', incluye: 'Limpieza, masaje del cuero cabelludo y ritual de hidratación capilar.', indic: 'Ven con el cabello sin productos de peinado, si es posible.' },
+  { id: 'laser', nombre: 'Depilación láser diodo', dur: 45, recurso: 'laser', claves: /laser|depila|vello|diodo|axila|bikini|pierna|bozo/, desc: 'Depilación láser diodo con orientación individual sobre zonas y plan de atención según cada caso.', incluye: 'Primera cita de orientación y valoración de la zona; el equipo define contigo el plan.', indic: 'El equipo te enviará las indicaciones previas antes de tu cita.' }
+];
+const ADS = [
+  { code: 'A01', key: 'HAZ ESPACIO', svc: 'facial', titulo: 'Haz espacio para ti', msg: 'Hola, vi HAZ ESPACIO y quiero información sobre cuidado facial' },
+  { code: 'A02', key: 'PAUSA', svc: 'masaje', titulo: 'Regálate una pausa', msg: 'Hola, vi PAUSA y quiero información sobre el masaje relajante' },
+  { code: 'A03', key: 'RITUAL', svc: 'spa_capilar', titulo: 'Tu próximo ritual empieza aquí', msg: 'Hola, vi RITUAL y quiero información sobre spa capilar' },
+  { code: 'A04', key: 'LASER', svc: 'laser', titulo: 'Depilación láser diodo', msg: 'Hola, vi LASER y quiero información sobre depilación láser' },
+  { code: '—', key: 'Orgánico', svc: null, titulo: 'Sin anuncio', msg: 'Hola, buenas tardes' }
+];
+const svc = id => SERV.find(s => s.id === id);
+
+/* ---------- Fechas ---------- */
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const pad = n => String(n).padStart(2, '0');
+const toDs = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fromDs = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = fromDs(s); d.setDate(d.getDate() + n); return toDs(d); };
+const TODAY = toDs(new Date());
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const clock = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const horario = s => FESTIVOS.includes(s) ? null : HOR[fromDs(s).getDay()];
+const fechaLarga = s => { const d = fromDs(s); let t = `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`; if (s === TODAY) t = 'hoy, ' + t; else if (s === addDays(TODAY, 1)) t = 'mañana, ' + t; return t; };
+const conArt = t => /^(hoy|mañana)/.test(t) ? t : 'el ' + t;
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+const h12 = m => { const h = Math.floor(m / 60), mi = m % 60; return `${h % 12 || 12}:${pad(mi)} ${h >= 12 ? 'p. m.' : 'a. m.'}`; };
+const money = v => '$' + Math.round(v).toLocaleString('es-CO');
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+/* ---------- Estado ---------- */
+let S, uid = 1;
+function seedCitas() {
+  const list = [];
+  const open = [];
+  for (let k = 1; open.length < 5 && k < 21; k++) { const s = addDays(TODAY, k); if (horario(s)) open.push(s); }
+  const plan = [
+    [0, 540, 'facial', 'Carolina M.', 'HAZ ESPACIO', 'Confirmada'], [0, 660, 'laser', 'Daniela P.', 'LASER', 'Agendada'], [0, 900, 'masaje', 'Mariana L.', 'PAUSA', 'Agendada'],
+    [1, 600, 'spa_capilar', 'Valentina R.', 'RITUAL', 'Confirmada'], [1, 960, 'facial', 'Paula A.', 'Orgánico', 'Agendada'],
+    [2, 570, 'masaje', 'Juliana S.', 'PAUSA', 'Agendada'], [2, 840, 'laser', 'Natalia G.', 'LASER', 'Agendada'],
+    [3, 600, 'facial', 'Sara V.', 'HAZ ESPACIO', 'Agendada'], [3, 720, 'laser', 'Camila T.', 'LASER', 'Agendada'],
+    [4, 660, 'spa_capilar', 'Laura C.', 'RITUAL', 'Agendada']
+  ];
+  for (const [i, ini, sid, nombre, origen, estado] of plan) {
+    const fecha = open[i]; const h = horario(fecha); const s = svc(sid);
+    if (!h || ini < h[0] || ini + s.dur > h[1]) continue;
+    const clash = list.some(c => c.fecha === fecha && svc(c.svc).recurso === s.recurso && ini < c.ini + svc(c.svc).dur + 10 && c.ini < ini + s.dur + 10);
+    if (!clash) list.push({ id: uid++, fecha, ini, svc: sid, nombre, origen, estado, ejemplo: true });
+  }
+  return list;
+}
+function reset() {
+  S = {
+    ad: null, step: 'idle', datos: {}, msgs: [], typing: false, asesora: false, recordado: false, asistio: false,
+    contacto: { perfil: 'Laura Gómez' }, citaDemo: null, tab: 'agenda', flash: false,
+    citas: seedCitas(),
+    stats: {
+      'HAZ ESPACIO': { conv: 42, citas: 15, asis: 11, ventas: 1320000, inv: 150000 },
+      'PAUSA': { conv: 35, citas: 12, asis: 9, ventas: 990000, inv: 150000 },
+      'RITUAL': { conv: 28, citas: 8, asis: 6, ventas: 840000, inv: 150000 },
+      'LASER': { conv: 51, citas: 10, asis: 6, ventas: 1080000, inv: 150000 },
+      'Orgánico': { conv: 14, citas: 6, asis: 5, ventas: 560000, inv: 0 }
+    },
+    eventos: [
+      { name: 'LeadSubmitted', detail: 'Cita agendada · Masaje relajante · anuncio A02', t: 'ejemplo' },
+      { name: 'Purchase', detail: 'Visita pagada · $110.000 · Spa capilar coreano · anuncio A03', t: 'ejemplo' }
+    ]
+  };
+}
+
+/* ---------- Motor del chat ---------- */
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let FAST = false, busy = false;
+const wait = ms => new Promise(r => setTimeout(r, FAST ? 0 : (reduce ? 60 : ms)));
+const first = () => (S.datos.nombre || S.contacto.perfil).split(' ')[0];
+function addMsg(m) { m.t = clock(); S.msgs.push(m); renderChat(); }
+function user(text) { addMsg({ from: 'in', text }); }
+function divider(text) { addMsg({ divider: true, text }); }
+async function bot(...ms) {
+  busy = true;
+  for (const m of ms) { S.typing = true; renderChat(); await wait(700); S.typing = false; addMsg(Object.assign({ from: 'out' }, m)); }
+  busy = false; renderChat(); renderAll();
+}
+
+function mostrarServicio(id, intro) {
+  const s = svc(id); S.datos.svc = id; S.step = 'servicio';
+  return bot({
+    text: (intro ? intro + '\n\n' : '') + '¿Te gustaría agendar tu cita?',
+    card: { title: s.nombre, lines: [s.desc, 'Incluye: ' + s.incluye, `Duración: ${s.dur} min · Valor: te lo confirma el equipo según tu caso`] },
+    buttons: [{ id: 'agendar', label: 'Agendar cita' }, { id: 'servicios', label: 'Ver servicios' }, { id: 'asesora', label: 'Hablar con asesora' }]
+  });
+}
+function menu(text) {
+  S.step = 'menu';
+  return bot({ text: text || 'Estos son nuestros servicios. ¿Cuál te interesa?', list: { button: 'Ver servicios', title: 'Servicios', rows: SERV.map(s => ({ id: 'svc:' + s.id, title: s.nombre, desc: s.dur + ' min' })) } });
+}
+function slots(sid, fecha, excl) {
+  const s = svc(sid), h = horario(fecha); if (!h) return [];
+  const ocup = S.citas.filter(c => c.fecha === fecha && c.estado !== 'Cancelada' && c.id !== excl && svc(c.svc).recurso === s.recurso);
+  const out = [];
+  for (let m = h[0]; m + s.dur <= h[1]; m += 30) {
+    if (fecha === TODAY && m < nowMin() + 120) continue;
+    if (ocup.some(c => m < c.ini + svc(c.svc).dur + 10 && c.ini < m + s.dur + 10)) continue;
+    out.push(m);
+  }
+  return out;
+}
+function diasLibres(sid, n = 6) {
+  const out = [];
+  for (let k = 0; out.length < n && k < 30; k++) { const d = addDays(TODAY, k); const l = slots(sid, d, S.datos.excl).length; if (l) out.push([d, l]); }
+  return out;
+}
+function agendar(sid) {
+  sid = sid || S.datos.svc;
+  if (!sid) return menu('¡Con gusto! ¿Para qué servicio quieres la cita?');
+  S.datos.svc = sid; S.step = 'dia';
+  const s = svc(sid);
+  const dias = diasLibres(sid);
+  return bot({
+    text: S.datos.repro ? 'Claro, busquemos otro horario. ¿Qué día te queda mejor?' : `¡Perfecto! Agendemos tu ${s.nombre.toLowerCase()} (${s.dur} min). ¿Qué día te queda mejor?\n\nTambién puedes escribirme algo como “el viernes a las 4”.`,
+    list: { button: 'Ver días', title: 'Días disponibles', rows: dias.map(([d, l]) => ({ id: 'day:' + d, title: cap(fechaLarga(d)), desc: `${l} horarios libres` })) }
+  });
+}
+function mostrarHoras(d, page = 0, aviso) {
+  S.step = 'hora';
+  const all = slots(S.datos.svc, d, S.datos.excl), per = 8;
+  const rows = all.slice(page * per, page * per + per).map(m => ({ id: `slot:${d}:${m}`, title: h12(m) }));
+  if (all.length > (page + 1) * per) rows.push({ id: `more:${d}:${page + 1}`, title: 'Más horarios', desc: 'Ver horas más tarde' });
+  rows.push({ id: 'agendar', title: 'Otro día' });
+  return bot({ text: (aviso ? aviso + '\n\n' : '') + `Estos son los horarios libres para ${conArt(fechaLarga(d))}:`, list: { button: 'Ver horarios', title: cap(fechaLarga(d)), rows } });
+}
+function elegirHora(d, m) {
+  S.datos.fecha = d; S.datos.ini = m;
+  if (S.datos.repro) return resumen();
+  S.step = 'nombre';
+  return bot({ text: `Excelente, ${h12(m)} ${conArt(fechaLarga(d))}. ¿A nombre de quién agendo la cita?`, buttons: [{ id: 'nom:perfil', label: S.contacto.perfil }, { id: 'nom:otro', label: 'Otro nombre' }] });
+}
+function resumen() {
+  S.step = 'confirmar';
+  const s = svc(S.datos.svc);
+  return bot({
+    card: { title: S.datos.repro ? 'Nuevo horario' : 'Resumen de tu cita', lines: [`Servicio: ${s.nombre}`, `Fecha: ${cap(fechaLarga(S.datos.fecha))}`, `Hora: ${h12(S.datos.ini)} · ${s.dur} min`, `A nombre de: ${S.datos.nombre}`, `Lugar: ${NEG.direccion}`] },
+    text: '¿Confirmo la cita?',
+    buttons: [{ id: 'conf:si', label: 'Sí, confirmar' }, { id: 'conf:cambiar', label: 'Cambiar horario' }]
+  });
+}
+function evento(name, detail) { S.eventos.unshift({ name, detail, t: clock() }); }
+function confirmar() {
+  const d = S.datos, s = svc(d.svc);
+  if (!slots(d.svc, d.fecha, d.excl).includes(d.ini)) return mostrarHoras(d.fecha, 0, 'Uy, ese horario se acaba de ocupar.');
+  if (d.repro) {
+    const c = S.citas.find(x => x.id === S.citaDemo); c.fecha = d.fecha; c.ini = d.ini; c.estado = 'Agendada';
+    S.datos = { svc: d.svc, nombre: d.nombre }; S.step = 'agendada'; S.flash = true;
+    return bot({ text: `¡Listo! Moví tu cita ✅\n\n${s.nombre}\n${cap(conArt(fechaLarga(c.fecha)))} a las ${h12(c.ini)}\n\nEl espacio anterior quedó libre para otra persona.` });
+  }
+  const origen = S.ad ? S.ad.key : 'Orgánico';
+  const c = { id: uid++, fecha: d.fecha, ini: d.ini, svc: d.svc, nombre: d.nombre, origen, estado: 'Agendada', demo: true };
+  S.citas.push(c); S.citaDemo = c.id; S.stats[origen].citas++; S.step = 'agendada'; S.flash = true; S.tab = 'agenda';
+  evento('LeadSubmitted', `Cita agendada · ${s.nombre} · ${S.ad && S.ad.code !== '—' ? 'anuncio ' + S.ad.code + ' (clic al anuncio identificado)' : 'sin anuncio'}`);
+  return bot({
+    text: `¡Listo, ${first()}! Tu cita quedó agendada ✅\n\n${s.nombre}\n${cap(conArt(fechaLarga(c.fecha)))} a las ${h12(c.ini)}\n${NEG.direccion}\n\n${s.indic} ${NEG.politica}\n\nUn día antes te envío un recordatorio.`,
+    buttons: [{ id: 'ubic', label: 'Cómo llegar' }, { id: 'miscitas', label: 'Mis citas' }]
+  });
+}
+function citaActiva() { const c = S.citas.find(x => x.id === S.citaDemo); return c && !['Cancelada', 'Asistió', 'No asistió'].includes(c.estado) ? c : null; }
+function derivar(sensible) {
+  S.asesora = true; S.step = 'asesora';
+  return bot({ text: sensible
+    ? 'Gracias por contarnos. Como es un tema de salud, prefiero que una asesora del equipo te oriente personalmente. Ya le avisé y te escribe por aquí en breve.'
+    : 'Claro, ya le avisé a una asesora del equipo. Te escribe por aquí en breve 🙌' });
+}
+function parseFecha(n) {
+  if (/\bhoy\b/.test(n)) return TODAY;
+  if (/\bmanana\b/.test(n) && !/(por|en) la manana/.test(n)) return addDays(TODAY, 1);
+  const names = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+  for (let i = 0; i < 7; i++) if (new RegExp('\\b' + names[i] + '\\b').test(n)) for (let k = 0; k < 8; k++) { const s = addDays(TODAY, k); if (fromDs(s).getDay() === i) return s; }
+  const m = n.match(/\bel (\d{1,2})\b(?!\s*(:|am|pm|a\.|p\.))/);
+  if (m) for (let k = 0; k < 40; k++) { const s = addDays(TODAY, k); if (fromDs(s).getDate() === +m[1]) return s; }
+  return null;
+}
+function parseHora(n) {
+  const m = n.match(/(?:a las|a la)\s*(\d{1,2})(?::(\d{2}))?\s*(a\.?\s?m|p\.?\s?m)?/) || n.match(/\b(\d{1,2}):(\d{2})\s*(a\.?\s?m|p\.?\s?m)?/) || n.match(/\b(\d{1,2})()\s*(a\.?\s?m|p\.?\s?m)\b/);
+  if (!m) return null;
+  let h = +m[1]; const mi = +(m[2] || 0); const ap = (m[3] || '').replace(/[^ap]/g, '');
+  if (ap === 'p' && h < 12) h += 12; if (ap === 'a' && h === 12) h = 0; if (!ap && h < 8) h += 12;
+  return h > 23 || mi > 59 ? null : h * 60 + mi;
+}
+function usarFecha(d, hora) {
+  if (!horario(d)) return bot({ text: `${cap(conArt(fechaLarga(d)))} no atendemos. Nuestro horario es ${NEG.horario}` }).then(() => agendar());
+  S.datos.fecha = d;
+  const all = slots(S.datos.svc, d, S.datos.excl);
+  if (!all.length) return bot({ text: `Para ${conArt(fechaLarga(d))} ya no me quedan cupos para este servicio.` }).then(() => agendar());
+  if (hora != null) {
+    if (all.includes(hora)) return elegirHora(d, hora);
+    const near = all.reduce((a, b) => Math.abs(b - hora) < Math.abs(a - hora) ? b : a);
+    return mostrarHoras(d, Math.floor(all.indexOf(near) / 8), `A las ${h12(hora)} no tengo cupo ese día. Lo más cercano: ${h12(near)}`);
+  }
+  return mostrarHoras(d);
+}
+
+const idle = async () => { while (busy) await new Promise(r => setTimeout(r, 80)); };
+async function act(id, label) {
+  if (busy) return;
+  if (label) user(label);
+  const [k, a, b] = id.split(':');
+  if (S.asesora && !['rec', 'cancel'].includes(k)) return;
+  switch (k) {
+    case 'agendar': return agendar(a);
+    case 'servicios': return menu();
+    case 'asesora': return derivar(false);
+    case 'svc': return mostrarServicio(a);
+    case 'day': return mostrarHoras(a);
+    case 'more': return mostrarHoras(a, +b);
+    case 'slot': return elegirHora(a, +b);
+    case 'nom':
+      if (a === 'perfil') { S.datos.nombre = S.contacto.perfil; return resumen(); }
+      S.step = 'nombre_txt'; return bot({ text: 'Escríbeme el nombre y apellido de quien asistirá, por favor.' });
+    case 'conf':
+      if (a === 'si') return confirmar();
+      return mostrarHoras(S.datos.fecha);
+    case 'ubic': return bot({ text: `Estamos en ${NEG.direccion}. Atendemos ${NEG.horario}` });
+    case 'miscitas': {
+      const c = citaActiva();
+      if (!c) return bot({ text: 'No tienes citas activas. ¿Quieres agendar una?', buttons: [{ id: 'agendar', label: 'Agendar cita' }] });
+      return bot({ text: `Tu próxima cita:\n${svc(c.svc).nombre} · ${conArt(fechaLarga(c.fecha))} a las ${h12(c.ini)}.`, buttons: [{ id: 'rec:repro', label: 'Reprogramar' }, { id: 'rec:cancel', label: 'Cancelar cita' }] });
+    }
+    case 'rec': {
+      const c = citaActiva(); if (!c) return;
+      if (a === 'ok') { c.estado = 'Confirmada'; return bot({ text: `¡Gracias, ${first()}! Te esperamos 💙 Recuerda llegar 10 minutos antes.` }); }
+      if (a === 'repro') { S.datos = { svc: c.svc, nombre: c.nombre, repro: true, excl: c.id }; return agendar(c.svc); }
+      return bot({ text: '¿Seguro que quieres cancelar tu cita?', buttons: [{ id: 'cancel:si', label: 'Sí, cancelar' }, { id: 'cancel:no', label: 'No, mantenerla' }] });
+    }
+    case 'cancel': {
+      const c = citaActiva(); if (!c) return;
+      if (a === 'si') { c.estado = 'Cancelada'; return bot({ text: 'Listo, cancelé tu cita y el espacio quedó libre. Cuando quieras volver a agendar, escríbeme.', buttons: [{ id: 'agendar', label: 'Agendar de nuevo' }] }); }
+      return bot({ text: 'Perfecto, tu cita sigue en pie. ¡Te esperamos!' });
+    }
+    case 'nomas': return bot({ text: 'Entendido. Aquí estaré cuando lo necesites 💙' });
+  }
+}
+
+async function onText(t) {
+  if (!t.trim()) return;
+  await idle();
+  user(t);
+  if (S.asesora) return;
+  const n = norm(t);
+  if (/embaraz|lactan|cirug|operaci|medicament|enfermedad|diabet|cancer|alergi|herida|infecci|marcapaso/.test(n)) return derivar(true);
+  if (/asesor|humano|persona real|hablar con alguien|llamar|llamada|agente/.test(n)) return derivar(false);
+  if ((S.step === 'nombre' || S.step === 'nombre_txt') && !/\d/.test(n) && n.split(/\s+/).length <= 4 && !/precio|cuanto|donde|horario|agend/.test(n)) {
+    S.datos.nombre = t.trim().replace(/\s+/g, ' ').split(' ').map(cap).join(' ');
+    return resumen();
+  }
+  if (S.step === 'confirmar' && /^(si|sii|ok|dale|listo|confirmo|de una|claro)\b/.test(n)) return confirmar();
+  if (/precio|cuanto|vale|valor|costo|cuesta/.test(n)) {
+    const s = S.datos.svc ? svc(S.datos.svc) : null;
+    return bot({ text: `${s ? 'El valor de ' + s.nombre.toLowerCase() : 'El valor'} depende de lo que necesites; el equipo te lo confirma antes de tu cita, sin compromiso. ¿Quieres que te reserve un espacio?`, buttons: [{ id: 'agendar', label: 'Agendar cita' }, { id: 'asesora', label: 'Hablar con asesora' }] });
+  }
+  if (/donde|direcc|ubica|llegar|mapa|barrio/.test(n)) return act('ubic');
+  if (/horario|abren|cierran|atienden/.test(n)) return bot({ text: `Atendemos ${NEG.horario}` });
+  if (/cancel/.test(n) && citaActiva()) return act('rec:cancel');
+  if (/reprogram|cambiar (la|mi) cita|mover (la|mi) cita/.test(n) && citaActiva()) return act('rec:repro');
+  const found = SERV.find(s => s.claves.test(n));
+  const fecha = parseFecha(n), hora = parseHora(n);
+  if (found) S.datos.svc = found.id;
+  if (fecha && S.datos.svc) return usarFecha(fecha, hora);
+  if (hora != null && S.datos.fecha && S.step === 'hora') return usarFecha(S.datos.fecha, hora);
+  if (/agend|cita|reserv|turno|apart/.test(n)) return agendar(found && found.id);
+  if (found) return mostrarServicio(found.id);
+  if (/gracias/.test(n)) return bot({ text: '¡Con mucho gusto! 💙' });
+  if (/^(hola|buenas|buenos|hey)/.test(n)) return menu(`¡Hola, ${first()}! 👋 ¿En qué te puedo ayudar?`);
+  return bot({ text: 'Perdón, no te entendí del todo. Puedo mostrarte los servicios, agendar tu cita o pasarte con una asesora.', buttons: [{ id: 'servicios', label: 'Ver servicios' }, { id: 'agendar', label: 'Agendar cita' }, { id: 'asesora', label: 'Hablar con asesora' }] });
+}
+
+async function iniciar(ad) {
+  S.ad = ad; S.msgs = []; S.datos = {}; S.step = 'idle'; S.asesora = false; S.recordado = false; S.asistio = false; S.citaDemo = null;
+  S.stats[ad.key].conv++;
+  renderAll();
+  divider(ad.svc ? `Llegó desde el anuncio ${ad.code} · “${ad.titulo}”` : 'Escribió directo al WhatsApp, sin anuncio');
+  user(ad.msg);
+  await bot({ text: `¡Hola, ${first()}! 👋 Soy el asistente virtual de Valencia Stetic. Te ayudo a conocer el servicio y a agendar tu cita en un minuto.` });
+  if (ad.svc) await mostrarServicio(ad.svc); else await menu();
+}
+
+/* ---------- Simulaciones del equipo ---------- */
+async function simRecordatorio() {
+  const c = citaActiva(); if (!c || busy || S.asesora) return;
+  S.recordado = true;
+  divider('Un día antes de la cita');
+  await bot({ tag: 'Recordatorio automático', text: `Hola ${first()} 👋 Te recordamos tu cita de ${svc(c.svc).nombre} ${conArt(fechaLarga(c.fecha))}, a las ${h12(c.ini)}: ¿nos confirmas tu asistencia?`, buttons: [{ id: 'rec:ok', label: 'Confirmo' }, { id: 'rec:repro', label: 'Reprogramar' }, { id: 'rec:cancel', label: 'Cancelar' }] });
+}
+async function simSeguimiento() {
+  if (busy || citaActiva() || S.asesora) return;
+  const s = S.datos.svc ? svc(S.datos.svc) : null;
+  divider('20 horas después, sin agendar');
+  await bot({ tag: 'Seguimiento automático', text: `Hola ${first()}, ¿pudiste pensar en ${s ? 'tu ' + s.nombre.toLowerCase() : 'tu cita'}? Esta semana todavía tengo horarios libres. ¿Te ayudo a agendar?`, buttons: [{ id: 'agendar', label: 'Sí, agendar' }, { id: 'nomas', label: 'Ahora no' }] });
+}
+async function marcar(id, asistio) {
+  const c = S.citas.find(x => x.id === id); if (!c || busy) return;
+  const s = svc(c.svc);
+  if (asistio) {
+    const raw = document.getElementById('valor-' + id); const v = Math.max(0, +(raw && raw.value || 0));
+    c.estado = 'Asistió'; c.valor = v; S.asistio = true;
+    S.stats[c.origen].asis++; S.stats[c.origen].ventas += v;
+    evento('Purchase', `Visita pagada · ${money(v)} · ${s.nombre} · ${c.origen === 'Orgánico' ? 'sin anuncio' : 'anuncio ' + (ADS.find(a => a.key === c.origen) || {}).code}`);
+    S.tab = 'senales'; renderAll();
+    divider('Después de la visita');
+    await bot({ tag: 'Mensaje automático', text: `¡Gracias por visitarnos, ${first()}! 💙 Esperamos que hayas disfrutado tu ${s.nombre.toLowerCase()}. Cuando quieras repetir, escríbenos por aquí.` });
+  } else {
+    c.estado = 'No asistió'; renderAll();
+    divider('El día de la cita');
+    await bot({ text: `Hola ${first()}, hoy te esperábamos para tu ${s.nombre.toLowerCase()}. ¿Quieres que busquemos otro horario?`, buttons: [{ id: 'agendar', label: 'Reagendar' }] });
+  }
+}
+
+/* ---------- Render ---------- */
+const $ = s => document.querySelector(s);
+function renderChat() {
+  const el = $('#chat'); const last = S.msgs.length - 1;
+  el.innerHTML = S.msgs.map((m, i) => {
+    if (m.divider) return `<div class="divider">${esc(m.text)}</div>`;
+    const live = i === last && !busy && !(S.asesora && m.from === 'out' && !m.team);
+    let h = `<div class="msg ${m.from}">`;
+    if (m.tag) h += `<span class="tag${m.team ? ' team' : ''}">${esc(m.tag)}</span><br>`;
+    if (m.card) h += `<div class="card"><b>${esc(m.card.title)}</b>${m.card.lines.map(l => `<div>${esc(l)}</div>`).join('')}</div>`;
+    if (m.text) h += esc(m.text).replace(/\n/g, '<br>');
+    if (m.buttons) h += `<div class="qr">${m.buttons.map(b => `<button type="button" data-act="${esc(b.id)}" data-label="${esc(b.label)}" ${live ? '' : 'disabled'}>${esc(b.label)}</button>`).join('')}</div>`;
+    if (m.list) h += `<button type="button" class="lst" data-list="${i}" ${live ? '' : 'disabled'}>${esc(m.list.button)}</button>`;
+    return h + `<span class="t">${m.t}</span></div>`;
+  }).join('') + (S.typing ? '<div class="typing" aria-label="Escribiendo"><i></i><i></i><i></i></div>' : '');
+  el.scrollTop = el.scrollHeight;
+}
+function openSheet(i) {
+  const m = S.msgs[i]; if (!m || !m.list) return;
+  const sh = $('#sheet');
+  sh.innerHTML = `<div class="in" role="dialog" aria-label="${esc(m.list.title)}"><h3>${esc(m.list.title)}</h3>${m.list.rows.map(r => `<button type="button" class="row" data-act="${esc(r.id)}" data-label="${esc(r.title)}"><b>${esc(r.title)}</b>${r.desc ? `<small>${esc(r.desc)}</small>` : ''}</button>`).join('')}<button type="button" class="btn small close" data-close>Cerrar</button></div>`;
+  sh.hidden = false;
+  const f = sh.querySelector('button.row'); if (f) f.focus();
+}
+function closeSheet() { $('#sheet').hidden = true; }
+
+function renderSteps() {
+  const c = S.citas.find(x => x.id === S.citaDemo);
+  const done = [!!S.ad, !!c, !!c && S.tab !== 'x', S.recordado, S.asistio];
+  const nowIdx = done.indexOf(false);
+  const items = [
+    ['Elige el anuncio', 'Cada anuncio trae su mensaje listo. El asistente reconoce de cuál viene la persona.'],
+    ['Conversa como la clienta', 'Agenda con los botones o escribiendo con tus palabras.'],
+    ['Mira la cita en el panel', 'Aparece al instante en la agenda del equipo, con el anuncio de origen.'],
+    ['Simula el recordatorio', 'Un día antes el asistente le escribe solo para confirmar.', `<button class="btn small" type="button" id="sim-rec" ${citaActiva() && !S.asesora ? '' : 'disabled'}>Enviar recordatorio</button> <button class="btn small" type="button" id="sim-seg" ${!citaActiva() && S.ad && !S.asesora ? '' : 'disabled'}>Seguimiento si no agendó</button>`],
+    ['Marca la asistencia', 'El equipo registra quién vino y cuánto pagó; esa venta se reporta a Meta.']
+  ];
+  $('#steps').innerHTML = items.map(([b, s, x], i) => `<li class="${done[i] ? 'done' : (i === nowIdx ? 'now' : '')}"><div><b>${b}</b><span>${s}</span>${x || ''}</div></li>`).join('');
+}
+function renderAds() {
+  $('#ads').innerHTML = ADS.map((a, i) => `<button type="button" class="ad ${S.ad === a ? 'on' : ''}" data-ad="${i}"><span class="code">${a.code === '—' ? 'Sin anuncio' : 'Anuncio ' + a.code + ' · ' + a.key}</span><strong>${esc(a.titulo)}</strong><small>“${esc(a.msg)}”</small></button>`).join('');
+}
+function estadoPill(e) {
+  const cls = { 'Agendada': '', 'Confirmada': 'ad', 'Asistió': 'ok', 'No asistió': 'bad', 'Cancelada': 'bad' }[e] || '';
+  return `<span class="pill ${cls}">${e}</span>`;
+}
+function renderPanel() {
+  const tabs = [['agenda', 'Agenda'], ['resultados', 'Resultados por anuncio'], ['senales', 'Señales a Meta']];
+  const nEv = S.eventos.filter(e => e.t !== 'ejemplo').length;
+  $('#tabs').innerHTML = tabs.map(([id, l]) => `<button type="button" role="tab" class="tab ${S.tab === id ? 'on' : ''}" aria-selected="${S.tab === id}" data-tab="${id}">${l}${id === 'senales' && nEv ? `<span class="n">${nEv}</span>` : ''}</button>`).join('');
+  let h = '';
+  if (S.asesora) h += `<div class="alert"><div><b>Atiende asesora:</b> ${esc(S.contacto.perfil)} pidió hablar con una persona. El asistente se pausó en este chat para no interrumpir.</div><div class="row"><button class="btn small primary" type="button" id="team-reply">Responder como equipo</button><button class="btn small" type="button" id="bot-on">Reactivar asistente</button></div></div>`;
+  if (S.tab === 'agenda') {
+    const days = []; for (let k = 0; days.length < 6 && k < 21; k++) { const d = addDays(TODAY, k); if (horario(d)) days.push(d); }
+    h += `<p class="legend">El centro tiene una cabina y un equipo láser. El asistente solo ofrece horas libres, deja 10 minutos entre citas y nunca cruza dos citas en el mismo espacio.</p><div class="days">`;
+    h += days.map(d => {
+      const cs = S.citas.filter(c => c.fecha === d).sort((a, b) => a.ini - b.ini);
+      const hh = horario(d);
+      return `<div class="day"><h3>${fechaLarga(d)}<span>${h12(hh[0]).replace(':00', '')}–${h12(hh[1]).replace(':00', '')}</span></h3>${cs.length ? cs.map(c => {
+        const s = svc(c.svc); const activa = c.demo && ['Agendada', 'Confirmada'].includes(c.estado);
+        return `<div class="cita ${c.demo ? 'demo' : ''} ${c.demo && S.flash ? 'flash' : ''}"><time>${h12(c.ini)}</time><div><b>${esc(c.nombre)}</b><span class="svc">${s.nombre} · ${s.dur} min</span></div><div class="pills"><span class="pill ad">${c.origen === 'Orgánico' ? 'Orgánico' : 'Anuncio ' + esc(c.origen)}</span>${estadoPill(c.estado)}${c.ejemplo ? '<span class="pill ex">ejemplo</span>' : ''}${c.valor ? `<span class="pill ok">${money(c.valor)}</span>` : ''}</div>${activa ? `<div class="acts"><label for="valor-${c.id}">Valor pagado <input id="valor-${c.id}" type="number" min="0" step="5000" value="120000"></label><button class="btn small primary" type="button" data-asis="${c.id}">Asistió</button><button class="btn small" type="button" data-noasis="${c.id}">No asistió</button></div>` : ''}</div>`;
+      }).join('') : '<div class="empty">Sin citas</div>'}</div>`;
+    }).join('') + '</div>';
+  } else if (S.tab === 'resultados') {
+    const rows = Object.entries(S.stats);
+    const tot = rows.reduce((a, [, r]) => ({ conv: a.conv + r.conv, citas: a.citas + r.citas, asis: a.asis + r.asis, ventas: a.ventas + r.ventas, inv: a.inv + r.inv }), { conv: 0, citas: 0, asis: 0, ventas: 0, inv: 0 });
+    const paid = rows.filter(([, r]) => r.inv > 0);
+    const best = paid.reduce((a, b) => (b[1].ventas / b[1].inv > a[1].ventas / a[1].inv ? b : a));
+    const most = paid.reduce((a, b) => (b[1].conv > a[1].conv ? b : a));
+    const maxV = Math.max(...rows.map(([, r]) => r.ventas));
+    h += `<div class="kpis"><div class="kpi"><small>Conversaciones</small><strong>${tot.conv}</strong></div><div class="kpi"><small>Citas agendadas</small><strong>${tot.citas}</strong></div><div class="kpi"><small>Asistieron</small><strong>${tot.asis}</strong></div><div class="kpi"><small>Ventas registradas</small><strong>${money(tot.ventas)}</strong></div></div>`;
+    h += `<div class="tablewrap"><table><thead><tr><th>Origen</th><th>Conversaciones</th><th>Citas</th><th>Asistieron</th><th>Ventas</th><th>Inversión</th><th>Costo por cita</th><th>Retorno</th></tr></thead><tbody>${rows.map(([k, r]) => `<tr class="${k === best[0] ? 'best' : ''}"><td>${k === 'Orgánico' ? 'Orgánico' : (ADS.find(a => a.key === k).code + ' · ' + k)}</td><td>${r.conv}</td><td>${r.citas}</td><td>${r.asis}</td><td>${money(r.ventas)}<span class="bar" style="width:${Math.round(40 * r.ventas / maxV)}px"></span></td><td>${r.inv ? money(r.inv) : '—'}</td><td>${r.inv && r.citas ? money(r.inv / r.citas) : '—'}</td><td>${r.inv ? (r.ventas / r.inv).toFixed(1).replace('.', ',') + ' x' : '—'}</td></tr>`).join('')}</tbody></table></div>`;
+    h += `<div class="insight"><b>Lectura:</b> ${most[0]} trae más conversaciones, pero ${best[0]} devuelve más ventas por cada peso invertido (${(best[1].ventas / best[1].inv).toFixed(1).replace('.', ',')} x). Por eso el presupuesto se mueve según citas y ventas, no según cantidad de mensajes.</div>`;
+    h += `<p class="legend">Cifras de ejemplo para ilustrar el reporte. Tus acciones en la demo sí se suman: conversación, cita, asistencia y valor pagado.</p>`;
+  } else {
+    h += `<p class="explain">Cada vez que alguien agenda o que el equipo registra una visita pagada, el sistema le avisa a Meta de qué anuncio vino esa persona. Con esas señales, Meta le muestra los anuncios a más personas parecidas a las que sí agendan y asisten.</p><div class="events">`;
+    h += S.eventos.map(e => `<div class="ev"><code class="${e.name === 'Purchase' ? 'buy' : ''}">${e.name === 'Purchase' ? 'Venta' : 'Cita'}</code><span>${esc(e.detail)}</span><time>${e.t}</time></div>`).join('') + '</div>';
+  }
+  $('#pbody').innerHTML = h;
+  if (S.flash && !FAST) { const el = document.querySelector('.cita.demo.flash'); if (el) el.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }
+  S.flash = false;
+}
+function renderAll() { renderSteps(); renderAds(); renderPanel(); }
+
+/* ---------- Eventos ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.close !== undefined || (t.closest('#sheet') && !t.dataset.act)) { closeSheet(); return; }
+  if (t.dataset.act) { closeSheet(); act(t.dataset.act, t.dataset.label); return; }
+  if (t.dataset.list) { openSheet(+t.dataset.list); return; }
+  if (t.dataset.ad) { if (!busy) iniciar(ADS[+t.dataset.ad]); return; }
+  if (t.dataset.tab) { S.tab = t.dataset.tab; renderPanel(); return; }
+  if (t.dataset.asis) { marcar(+t.dataset.asis, true); return; }
+  if (t.dataset.noasis) { marcar(+t.dataset.noasis, false); return; }
+  if (t.id === 'sim-rec') return simRecordatorio();
+  if (t.id === 'sim-seg') return simSeguimiento();
+  if (t.id === 'team-reply') { addMsg({ from: 'out', team: true, tag: 'Equipo · Paula', text: `Hola ${first()}, soy Paula del equipo de Valencia Stetic 😊 Cuéntame, ¿en qué te puedo ayudar?` }); return; }
+  if (t.id === 'bot-on') { S.asesora = false; S.step = 'idle'; renderAll(); renderChat(); return; }
+  if (t.id === 'reset') { if (busy) return; reset(); start(); }
+});
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+$('#composer').addEventListener('submit', e => { e.preventDefault(); const i = $('#txt'); const v = i.value; i.value = ''; onText(v); });
+
+async function start() { FAST = true; await iniciar(ADS[0]); FAST = false; renderAll(); }
+reset(); start();
+})();
+</script>

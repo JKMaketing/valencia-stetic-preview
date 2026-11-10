@@ -1,0 +1,10 @@
+﻿node_modules/
+.env
+*.sqlite*
+data/
+demo-datos/
+demo.pid
+demo.log
+demo-enlace.txt
+.DS_Store
+

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador WhatsApp</title>
+<link rel="stylesheet" href="/estilos.css">
+<style>
+  body { min-height: 100vh; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 20px 16px 40px; display: grid; grid-template-columns: 1fr 400px; gap: 20px; align-items: start; }
+  @media (max-width: 880px) { .wrap { grid-template-columns: 1fr; } }
+  .panel-izq { padding: 18px; display: grid; gap: 14px; }
+  .panel-izq p { margin: 0; font-size: 13px; }
+  .anuncios { display: grid; gap: 8px; }
+  .anuncio { text-align: left; border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; background: var(--blanco); cursor: pointer; display: grid; gap: 2px; }
+  .anuncio:hover { border-color: var(--azul); background: var(--celeste-suave); }
+  .anuncio b { font-size: 13px; }
+  .anuncio span { font-size: 12px; color: var(--gris-med); }
+  .tel { width: 100%; max-width: 400px; height: min(780px, calc(100vh - 40px)); min-height: 560px; border-radius: 28px; border: 8px solid #1d1d1d; background: #EFEAE2; display: flex; flex-direction: column; overflow: hidden; position: relative; justify-self: center; box-shadow: 0 10px 40px rgba(0,0,0,.18); }
+  .tel-cab { background: #075E54; color: #fff; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+  .tel-cab .av { width: 34px; height: 34px; border-radius: 50%; background: var(--azul); display: grid; place-items: center; font-weight: 600; font-size: 13px; }
+  .tel-cab small { display: block; opacity: .8; font-size: 11px; }
+  .chat { flex: 1; overflow: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .b { max-width: 85%; padding: 7px 9px 4px; border-radius: 9px; font-size: 13.5px; white-space: pre-wrap; word-wrap: break-word; box-shadow: 0 1px 1px rgba(0,0,0,.08); }
+  .b.yo { align-self: flex-end; background: #D9FDD3; border-top-right-radius: 2px; }
+  .b.ellos { align-self: flex-start; background: #fff; border-top-left-radius: 2px; }
+  .b .pie { display: block; font-size: 11.5px; color: var(--gris-med); margin-top: 4px; }
+  .b .t { display: block; text-align: right; font-size: 10px; color: var(--gris-med); }
+  .bts { display: grid; gap: 4px; margin-top: 6px; border-top: 1px solid #eee; padding-top: 4px; }
+  .bts button { border: 0; background: none; color: #027EB5; font-weight: 500; padding: 6px; cursor: pointer; border-radius: 6px; }
+  .bts button:hover { background: #F0F8FC; }
+  .ref { align-self: flex-end; max-width: 85%; background: #fff; border-radius: 9px; padding: 8px; font-size: 12px; border-left: 3px solid var(--azul); }
+  .entrada { display: flex; gap: 6px; padding: 8px; background: #F0F0F0; }
+  .entrada input { flex: 1; border-radius: 999px; }
+  .entrada button { border-radius: 50%; width: 40px; height: 40px; border: 0; background: #00A884; color: #fff; cursor: pointer; font-size: 16px; }
+  .hoja { position: absolute; inset: auto 0 0 0; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.18); max-height: 70%; overflow: auto; padding: 8px 0 12px; }
+  .hoja h4 { margin: 6px 16px 8px; font-size: 14px; font-weight: 600; text-align: center; }
+  .hoja .sec { font-size: 12px; color: #00A884; padding: 6px 16px; font-weight: 500; }
+  .hoja .fila-l { padding: 10px 16px; border-bottom: 1px solid #f1f1f1; cursor: pointer; }
+  .hoja .fila-l:hover { background: #F5F5F5; }
+  .hoja .fila-l small { display: block; color: var(--gris-med); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tarjeta panel-izq">
+    <div><h2>Simulador de WhatsApp</h2><p class="muted">Prueba el bot como si fueras una clienta que toca un anuncio Click-to-WhatsApp. Usa la misma lógica, agenda y base de datos que el sistema real; nada se envía a WhatsApp.</p></div>
+    <div class="fila">
+      <label style="flex:1">Número de prueba <input id="num" value="573001234567"></label>
+      <label style="flex:1">Nombre de perfil <input id="nom" value="Laura Gómez"></label>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">1. Llegar desde un anuncio</h3>
+      <div class="anuncios" id="anuncios"></div>
+    </div>
+    <div class="fila">
+      <button class="btn" id="reiniciar">Reiniciar esta conversación</button>
+      <a class="btn" href="/panel" target="_blank">Abrir panel del equipo</a>
+    </div>
+    <p class="muted" style="font-size:12px">Prueba también texto libre: “¿dónde quedan?”, “cuánto vale el facial”, “quiero agendar el sábado a las 10”, “necesito cambiar mi cita”, “quiero hablar con una asesora”.</p>
+  </div>
+
+  <div class="tel">
+    <div class="tel-cab"><div class="av">VS</div><div><b>Valencia Stetic</b><small>Cuenta de empresa</small></div></div>
+    <div class="chat" id="chat"></div>
+    <form class="entrada" id="form"><input id="txt" placeholder="Mensaje" autocomplete="off"><button aria-label="Enviar">➤</button></form>
+    <div class="hoja oculto" id="hoja"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const negrita = s => esc(s).replace(/\*([^*\n]+)\*/g, '<b>$1</b>');
+const hora = ms => new Date(ms).toLocaleTimeString('es-CO', { timeZone: 'America/Bogota', hour: 'numeric', minute: '2-digit' });
+const ANUNCIOS = [
+  { cod: 'A01', titulo: 'Haz espacio para ti', serv: 'Cuidado facial', msg: 'Hola, vi HAZ ESPACIO y quiero información sobre cuidado facial' },
+  { cod: 'A02', titulo: 'Una pausa también cuenta', serv: 'Masaje relajante', msg: 'Hola, vi PAUSA y quiero información sobre masaje relajante' },
+  { cod: 'A03', titulo: 'Tu próximo ritual empieza aquí', serv: 'Spa capilar coreano', msg: 'Hola, vi RITUAL y quiero información sobre spa capilar' },
+  { cod: 'A04', titulo: 'El primer paso es informarte', serv: 'Depilación láser diodo', msg: 'Hola, vi LASER y quiero información sobre depilación' },
+  { cod: '—', titulo: 'Escribe directo (orgánico)', serv: 'Sin anuncio', msg: 'Hola, buenas tardes' },
+];
+$('#anuncios').innerHTML = ANUNCIOS.map((a, i) => `<button class="anuncio" data-i="${i}"><b>${a.cod} · ${esc(a.titulo)}</b><span>${esc(a.serv)} — “${esc(a.msg)}”</span></button>`).join('');
+let ultimo = 0, ocupado = false;
+const P = new URLSearchParams(location.search), REAL = P.has('tel');
+
+async function post(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (r.status === 401) { alert('Inicia sesión primero en /panel'); location.href = '/panel'; throw new Error('401'); }
+  return r.json();
+}
+function pintar(ms) {
+  const chat = $('#chat');
+  for (const m of ms) {
+    if (m.id <= ultimo) continue;
+    ultimo = m.id;
+    if (m.direccion === 'in') { chat.insertAdjacentHTML('beforeend', `<div class="b yo">${esc(m.cuerpo)}<span class="t">${hora(m.ts)} ✓✓</span></div>`); continue; }
+    const p = m.payload || { tipo: 'texto', texto: m.cuerpo };
+    let html = `<div class="b ellos">${negrita(p.texto ?? m.cuerpo)}`;
+    if (p.pie) html += `<span class="pie">${esc(p.pie)}</span>`;
+    html += `<span class="t">${hora(m.ts)}</span>`;
+    if (p.tipo === 'botones') html += `<div class="bts">${p.botones.map(b => `<button data-id="${esc(b.id)}" data-t="${esc(b.titulo)}">${esc(b.titulo)}</button>`).join('')}</div>`;
+    if (p.tipo === 'lista') html += `<div class="bts"><button data-lista="${m.id}">☰ ${esc(p.boton || 'Ver opciones')}</button></div>`;
+    if (p.tipo === 'plantilla') html = `<div class="b ellos"><i>Plantilla “${esc(p.nombre)}”</i><br>${esc((p.params || []).join(' · '))}<span class="t">${hora(m.ts)}</span>`;
+    html += '</div>';
+    chat.insertAdjacentHTML('beforeend', html);
+    if (p.tipo === 'lista') listas[m.id] = p;
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+const listas = {};
+async function enviar(body) {
+  if (ocupado) return; ocupado = true;
+  try { const r = await post('/sim/enviar', { wa_id: $('#num').value, nombre: $('#nom').value, real: REAL, ...body }); pintar(r.mensajes); }
+  finally { ocupado = false; }
+}
+$('#form').onsubmit = e => { e.preventDefault(); const t = $('#txt').value.trim(); if (!t) return; $('#txt').value = ''; enviar({ texto: t }); };
+$('#anuncios').onclick = e => {
+  const b = e.target.closest('.anuncio'); if (!b) return;
+  const a = ANUNCIOS[b.dataset.i];
+  const referral = a.cod === '—' ? null : { source_id: `1202100000000${b.dataset.i}`, source_type: 'ad', headline: a.titulo, body: a.serv, source_url: 'https://fb.me/anuncio-prueba', ctwa_clid: 'SIM_' + Math.random().toString(36).slice(2, 12) };
+  if (referral) $('#chat').insertAdjacentHTML('beforeend', `<div class="ref">📣 Anuncio de Valencia Stetic<br><b>${esc(a.titulo)}</b></div>`);
+  enviar({ texto: a.msg, referral });
+};
+$('#chat').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.id) return enviar({ reply_id: b.dataset.id, texto: b.dataset.t });
+  if (b.dataset.lista) {
+    const p = listas[b.dataset.lista];
+    $('#hoja').innerHTML = `<h4>${esc(p.boton || 'Opciones')}</h4>` + p.secciones.map(s => `<div class="sec">${esc(s.titulo)}</div>` + s.filas.slice(0, 10).map(f => `<div class="fila-l" data-id="${esc(f.id)}" data-t="${esc(f.titulo)}">${esc(f.titulo)}${f.descripcion ? `<small>${esc(f.descripcion)}</small>` : ''}</div>`).join('')).join('');
+    $('#hoja').classList.remove('oculto');
+  }
+};
+$('#hoja').onclick = e => { const f = e.target.closest('.fila-l'); $('#hoja').classList.add('oculto'); if (f) enviar({ reply_id: f.dataset.id, texto: f.dataset.t }); };
+$('#reiniciar').onclick = async () => { await post('/sim/reiniciar', { wa_id: $('#num').value, real: REAL }); $('#chat').innerHTML = ''; ultimo = 0; };
+async function cargar() {
+  const r = await fetch('/sim/mensajes?wa_id=' + encodeURIComponent($('#num').value) + '&desde=' + ultimo + (REAL ? '&real=1' : '')).then(r => r.json()).catch(() => null);
+  if (r?.mensajes) pintar(r.mensajes);
+}
+$('#num').onchange = () => { $('#chat').innerHTML = ''; ultimo = 0; cargar(); };
+if (REAL) { $('#num').value = P.get('tel'); }
+cargar().then(() => { if (REAL && P.get('texto')) enviar({ texto: P.get('texto') }); });
+setInterval(() => { if (!ocupado && !document.hidden) cargar(); }, 4000); // muestra recordatorios/seguimientos y mensajes del equipo
+</script>
+</body>
+</html>
