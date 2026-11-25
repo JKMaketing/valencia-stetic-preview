@@ -1,4 +1,4 @@
-﻿node_modules/
+node_modules/
 .env
 *.sqlite*
 data/
@@ -7,4 +7,5 @@ demo.pid
 demo.log
 demo-enlace.txt
 .DS_Store
-
+.generado/
+dist-pages/

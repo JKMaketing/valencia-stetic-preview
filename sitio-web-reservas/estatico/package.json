@@ -1,0 +1,1 @@
+{ "name": "valencia-stetic-estatico", "private": true, "version": "1.0.0", "type": "module", "description": "Compila el sitio y el sistema de agendamiento para correr 100% en el navegador (GitHub Pages)", "scripts": { "construir": "node construir.mjs" }, "devDependencies": { "esbuild": "^0.25.0", "sql.js": "^1.12.0" } }

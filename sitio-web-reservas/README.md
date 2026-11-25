@@ -1,3 +1,5 @@
+> **Actualización 25 nov 2026:** catálogo, protocolos y respuestas del bot cargados desde el «Contexto Maestro» (87 servicios + promociones de aniversario). Detalle en `INTEGRACION.md`. Hay 34 pruebas aprobadas. Preview publicable en Hugging Face Spaces / Render (ver el repositorio `valencia-stetic-preview`).
+
 > **Actualización 17 nov 2026:** catálogo con duraciones del listado del usuario, ocho ofertas de aniversario vigentes hasta el 15 dic 2026, páginas `/reservas/promo/...`, buscador y diseños verticales. Informe actual: [entregables-aniversario/REVISION-Y-UX.md](entregables-aniversario/REVISION-Y-UX.md). Las menciones a bloques uniformes de 30 min más abajo describen el estado anterior. Hay 33 pruebas aprobadas. Cinco promociones esperan duración confirmada y usan contacto.
 
 # Sitio web de reservas · Valencia Stetic
