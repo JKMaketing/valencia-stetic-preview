@@ -55,10 +55,10 @@ test('configuración pública: servicios, horario y nada inventado ni secreto', 
   assert.equal((await get('/api/publico/disponibilidad?servicios=facial,lifting,cejas,masaje,body_detox,dermapen')).status, 200, 'hasta 6 servicios');
   assert.equal((await get('/api/publico/disponibilidad?servicios=facial,lifting,cejas,masaje,body_detox,dermapen,nctf')).status, 422, 'más de 6 no');
   assert.equal((await get('/api/publico/disponibilidad?servicios=postop')).status, 200);
-  assert.equal(r.body.servicios.find(s => s.id === 'facial').foto, 'fotos/facial.jpg');
+  assert.equal(r.body.servicios.find(s => s.id === 'facial').foto, 'fotos/facial.webp');
   assert.ok(r.body.servicios.filter(s => s.id !== 'facial').every(s => s.foto === null), 'solo la limpieza facial tiene foto');
   assert.equal(porId('facial').duracion_min, 60); assert.equal(porId('masaje').duracion_min, 75); assert.equal(porId('masaje').duracion_texto, '75 minutos'); assert.equal(porId('promo_belleza').duracion_min, 80); assert.equal(porId('dermapen').duracion_min, 120);
-  assert.equal((await fetch(base + '/reservas/fotos/facial.jpg')).headers.get('content-type'), 'image/jpeg');
+  assert.equal((await fetch(base + '/reservas/fotos/facial.webp')).headers.get('content-type'), 'image/webp');
   assert.equal((await fetch(base + '/reservas/fotos/..%2Fapp.js')).status, 404);
   assert.ok(r.body.negocio.confianza, 'texto de confianza vigente');
   assert.equal(r.body.negocio.direccion, 'Calle 8 #12-59, Pereira');

@@ -158,6 +158,7 @@
   function montar(...nodos) {
     $app.replaceChildren(...nodos.filter(Boolean));
     document.body.classList.toggle('con-barra', !!$app.querySelector('.barra-movil'));
+    document.body.classList.toggle('web', !!$app.querySelector('[data-web]'));
     const t = $app.querySelector('h1'); if (t) { t.setAttribute('tabindex', '-1'); t.focus({ preventScroll: true }); }
   }
   const cargandoVista = () => montar(h('div', { class: 'cargando', role: 'status' }, h('div', { class: 'giro', 'aria-hidden': 'true' }), 'Cargando…'));
@@ -178,96 +179,141 @@
     can.href = location.origin + location.pathname.replace(/\/+$/, '');
     ponerMeta('og:title', titulo, 'property'); ponerMeta('og:description', descripcion, 'property'); ponerMeta('og:type', 'website', 'property');
     ponerMeta('og:url', can.href, 'property'); ponerMeta('og:locale', 'es_CO', 'property'); ponerMeta('og:site_name', n.nombre, 'property');
-    ponerMeta('og:image', location.origin + `${BASE}/fotos/equipo.jpg`, 'property');
+    ponerMeta('og:image', location.origin + `${BASE}/fotos/equipo.webp`, 'property');
     ponerMeta('geo.region', 'CO-RIS'); ponerMeta('geo.placename', n.ciudad || 'Pereira');
     if (n.coordenadas) { ponerMeta('geo.position', `${n.coordenadas.lat};${n.coordenadas.lng}`); ponerMeta('ICBM', `${n.coordenadas.lat}, ${n.coordenadas.lng}`); }
     datosEstructurados(migas);
   }
 
   // ───────── Piezas de la web (Inicio / Servicios / Contacto) ─────────
-  const NAV = [['', 'Inicio'], ['servicios', 'Servicios'], ['contacto', 'Contacto']];
   const MAS_VALORADOS = [
-    ['Depilación láser diodo', 'Resultados duraderos con tecnología diodo, sin pausar tu día.', ['laser', 'laser_bikini', 'laser_pierna', 'laser_facial'], 'depilacion-laser-diodo'],
-    ['Masajes y spa', 'Una hora para soltar tensiones, descansar y volver a ti.', ['masaje', 'masaje_terapeutico', 'masaje_basico', 'terapia_gold'], 'spa-y-masajes'],
+    ['Depilación láser diodo', 'Resultados duraderos, sin pausar tu día.', ['laser', 'laser_bikini', 'laser_pierna', 'laser_facial'], 'depilacion-laser-diodo'],
+    ['Masajes y spa', 'Una pausa para soltar tensiones y volver a ti.', ['masaje', 'masaje_terapeutico', 'masaje_basico', 'terapia_gold'], 'spa-y-masajes'],
   ];
-  const OBJETIVOS = [['Quiero relajarme', 'masaje'], ['Quiero depilarme', 'laser'], ['Cuidar mi piel', 'facial'], ['Cejas y pestañas', 'cejas'], ['Moldear mi cuerpo', 'cuerpo'], ['Promociones', 'aniversario']];
+  const OBJETIVOS = [['Relajarme', 'masaje'], ['Depilarme', 'laser'], ['Cuidar mi piel', 'facial'], ['Cejas y pestañas', 'cejas'], ['Moldear mi cuerpo', 'cuerpo'], ['Promociones', 'aniversario']];
   const externo = (href, texto, props) => h('a', { href, target: '_blank', rel: 'noopener', ...props }, texto);
+  const ico = (d, w = 26) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('width', w); s.setAttribute('height', w); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '1.6'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', d); s.append(p); return s; };
+  const ICONO_CAT = {
+    'faciales': 'M12 3c3 4 6 7 6 10.5a6 6 0 0 1-12 0C6 10 9 7 12 3Z',
+    'armonizacion-y-laser': 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM18 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z',
+    'depilacion-laser-diodo': 'M13 3 5 13.5h6L10 21l8-10.5h-6L13 3Z',
+    'depilacion-con-cera': 'M5 19C5 10 10 5 19 5c0 9-5 14-14 14ZM5 19l8-8',
+    'cejas-y-pestanas': 'M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12ZM12 14.8a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6Z',
+    'spa-y-masajes': 'M12 4c2.5 2.5 3.5 5 0 8-3.5-3-2.5-5.5 0-8ZM4 11c3 0 5.5 1.5 8 5-3 .5-6.5-.5-8-5ZM20 11c-3 0-5.5 1.5-8 5 3 .5 6.5-.5 8-5ZM6 19.5h12',
+    'cuerpo-y-postoperatorio': 'M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z',
+    'sueroterapia': 'M9 3h6v3H9ZM8 6h8v9a4 4 0 0 1-8 0V6ZM12 19v2',
+    'aniversario': 'M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.1 5.9-.8L12 3.5Z',
+  };
+  const iconoCat = cat => ico(ICONO_CAT[slug(cat)] || ICONO_CAT.faciales);
 
-  function ficha(s, { compacta = false } = {}) {
-    const dur = [s.duracion_texto && `Duración: ${s.duracion_texto}`, s.paquete && s.precio && s.paquete].filter(Boolean).join(' · ') || 'Duración por confirmar';
-    const dato = (t, v) => v && h('p', { class: 'ficha-dato' }, h('b', { texto: `${t}: ` }), v);
-    return h('li', { class: `ficha${compacta ? ' compacta' : ''}`, id: `s-${s.id}`, 'data-cat': slug(s.categoria || '') },
-      h('div', { class: 'ficha-cab' },
-        s.foto && h('img', { class: 'serv-foto', src: `${BASE}/${s.foto}`, alt: `${s.nombre} en Valencia Stetic, Pereira`, loading: 'lazy', width: 64, height: 64 }),
-        h('div', {}, h('h3', { texto: s.nombre }), h('p', { class: 'meta', texto: dur }))),
-      h('span', { class: s.precio ? 'precio' : 'precio pendiente', texto: precioDe(s) }),
-      h('p', { class: 'ficha-desc', texto: s.descripcion }),
-      !compacta && dato('Ideal para', s.indicado_para),
-      !compacta && dato('Sesiones', s.sesiones),
-      !compacta && s.revisar_condiciones && h('p', { class: 'info-nota', texto: 'Una asesora revisa tu caso antes de la cita.' }),
-      !compacta && protocolo(s),
-      h('div', { class: 'acciones-info' }, enlace(`${BASE}/reservar?servicio=${s.id}`, { class: 'boton chico', 'aria-label': `Agendar ${s.nombre}` }, 'Agendar'), preguntarAlAsistente(s)));
+  // Aparición suave al hacer scroll (ligera: sin librerías; respeta «reducir movimiento» en el CSS)
+  let observador = null;
+  function animar() {
+    const els = [...$app.querySelectorAll('.rev')];
+    if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('visto')); return; }
+    observador ||= new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visto'); observador.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    els.forEach(e => observador.observe(e));
   }
+  const rev = (n = 0) => ({ class: 'rev', style: `--d:${n * 70}ms` });
+  const seccion = (id, { tinte = false, eyebrow, titulo, sub } = {}, ...hijos) => h('section', { class: `sw${tinte ? ' tinte' : ''}`, id, 'aria-labelledby': `h-${id}` }, h('div', { class: 'contenedor' },
+    titulo && h('header', { ...rev(), class: 'rev sec-cab' }, eyebrow && h('small', { class: 'eyebrow', texto: eyebrow }), h('h2', { id: `h-${id}`, texto: titulo }), sub && h('p', { texto: sub })), hijos));
 
   function opinionesSeccion() {
     const op = S.cfg.negocio.opiniones;
-    return op && op.items.length ? h('section', { class: 'seccion', 'aria-labelledby': 'h-op' }, h('h2', { id: 'h-op' }, 'Lo que dicen nuestras clientas'),
-      h('p', { class: 'op-resumen' }, estrellas(Math.round(op.puntuacion)), h('b', { texto: String(op.puntuacion).replace('.', ',') }), ` · ${op.total} opiniones en ${op.fuente}`),
-      h('ul', { class: 'opiniones' }, op.items.map(i => h('li', { class: 'opinion' },
-        h('div', { class: 'op-cab' }, estrellas(i.estrellas), h('b', { texto: i.autor }), i.fecha && h('small', { texto: i.fecha })),
-        h('p', { texto: `“${i.texto}”` })))),
-      h('p', { class: 'nota-pie' }, externo(op.enlace, `Ver todas en ${op.fuente}`), ' · Opiniones tomadas tal cual de ', op.fuente, '.')) : null;
+    if (!op || !op.items.length) return null;
+    return seccion('opiniones', { eyebrow: 'OPINIONES', titulo: 'Lo que dicen nuestras clientas', sub: `${String(op.puntuacion).replace('.', ',')} de 5 · ${op.total} opiniones en ${op.fuente}` },
+      h('ul', { class: 'opiniones' }, op.items.map((i, k) => h('li', { ...rev(k), class: 'rev opinion' },
+        h('div', { class: 'op-cab' }, estrellas(i.estrellas), i.fecha && h('small', { texto: i.fecha })),
+        h('p', { texto: `“${i.texto}”` }), h('b', { texto: i.autor })))),
+      h('p', { class: 'nota-pie centro' }, externo(op.enlace, `Ver todas en ${op.fuente}`), ' · Opiniones tomadas tal cual de ', op.fuente, '.'));
   }
 
-  // ───────── Vista: Inicio ─────────
+  const filaSimple = s => enlace(`${BASE}/reservar?servicio=${s.id}`, { class: 'fila-simple', 'aria-label': `Agendar ${s.nombre}` },
+    h('span', { class: 'fs-nombre' }, h('b', { texto: s.nombre }), h('small', { texto: s.duracion_texto || 'Duración por confirmar' })), h('span', { class: 'fs-precio', texto: precioDe(s) }), h('span', { class: 'fs-flecha', 'aria-hidden': 'true', texto: '→' }));
+
+  function promoMini(p, k) {
+    return h('article', { class: 'promo-mini' }, h('small', { class: 'eyebrow', texto: 'Aniversario' }), h('h3', { texto: p.nombre }), h('p', { class: 'pm-incluye', texto: p.incluye }),
+      h('div', { class: 'promo-precio' }, p.antes && h('del', { texto: cop(p.antes) }), h('strong', { texto: cop(p.precio) })),
+      enlace(`${BASE}/promo/${p.id}`, { class: 'boton chico sec' }, 'Ver promoción'));
+  }
+
+  // ───────── Vista: Inicio (landing) ─────────
   function vistaPerfil() {
-    const c = S.cfg, n = c.negocio, hoyDia = diaSemana(c.agenda.hoy);
-    const hero = h('section', { class: 'hero hero-inicio' }, h('div', { class: 'contenedor hero-grid' },
-      h('div', {},
-        h('h1', { class: 'titulo', texto: n.nombre }),
-        h('p', { class: 'frase', texto: n.frase || 'Centro estético en Pereira' }),
-        n.confianza && h('p', { class: 'confianza', texto: `✓ ${n.confianza}` }),
-        n.descripcion && h('p', { texto: n.descripcion }),
+    const c = S.cfg, n = c.negocio, hoyDia = diaSemana(c.agenda.hoy), op = n.opiniones;
+    const hoy = n.horario.find(x => x.n === hoyDia);
+    const hero = h('section', { class: 'hero-lp', 'data-web': '1' }, h('div', { class: 'contenedor hero-lp-grid' },
+      h('div', { class: 'hero-texto' },
+        h('small', { class: 'eyebrow', texto: `${n.nombre} · ${n.ciudad || 'Pereira'}` }),
+        h('h1', { texto: 'Un momento para cuidarte, con calma y cercanía' }),
+        h('p', { class: 'lead', texto: n.descripcion || 'Cuidado facial y corporal con orientación del equipo para elegir lo que mejor se ajusta a ti.' }),
         h('div', { class: 'fila-botones' }, enlace(`${BASE}/reservar`, { class: 'boton' }, 'Agendar mi cita'), enlace(`${BASE}/servicios`, { class: 'boton sec' }, 'Ver servicios')),
-        h('ul', { class: 'datos-rapidos' },
-          h('li', {}, svg(ICONO_RELOJ), h('span', {}, h('span', { class: n.hoy_abierto ? 'punto' : 'punto cerrado', 'aria-hidden': 'true' }), n.hoy_abierto ? `Hoy: ${n.horario.find(x => x.n === hoyDia)?.texto}` : 'Hoy estamos cerrados')),
-          h('li', {}, svg(ICONO_PIN), h('span', {}, n.direccion, ' ', enlace(`${BASE}/contacto`, {}, 'Ver ubicación'))))),
-      h('figure', { class: 'equipo-foto' },
-        h('img', { src: `${BASE}/fotos/equipo.jpg`, alt: `Especialista de ${n.nombre} en el centro estético de Pereira`, width: 630, height: 810, fetchpriority: 'high' }),
-        h('figcaption', { texto: `Nuestro equipo te acompaña en ${n.ciudad || 'Pereira'}` }))));
+        h('ul', { class: 'confianza-lista' },
+          op && h('li', {}, h('b', { texto: `★ ${String(op.puntuacion).replace('.', ',')}` }), ` en ${op.fuente}`),
+          n.confianza && h('li', { texto: n.confianza }),
+          hoy && h('li', {}, h('span', { class: n.hoy_abierto ? 'punto' : 'punto cerrado', 'aria-hidden': 'true' }), n.hoy_abierto ? `Hoy ${hoy.texto}` : 'Hoy cerrado'))),
+      h('figure', { class: 'hero-foto' }, h('div', { class: 'blob', 'aria-hidden': 'true' }),
+        h('img', { src: `${BASE}/fotos/equipo.webp`, alt: `Equipo de ${n.nombre}: cuatro profesionales sonriendo en el centro de Pereira`, width: 960, height: 1280, fetchpriority: 'high', decoding: 'async' }),
+        h('figcaption', { texto: 'Nuestro equipo te acompaña en cada paso' }))));
+
+    const cats = grupos();
+    const queNecesitas = seccion('necesitas', { eyebrow: 'EXPLORA', titulo: '¿Qué necesitas hoy?', sub: 'Elige una categoría y te mostramos cada tratamiento con su valor y duración.' },
+      h('div', { class: 'tiles' }, cats.map(([cat, ss], k) => enlace(`${BASE}/servicios?cat=${slug(cat)}`, { ...rev(k % 4), class: 'rev tile' },
+        h('span', { class: 'tile-ico' }, iconoCat(cat)), h('b', { texto: cat }), h('small', { texto: [`${ss.length} ${ss.length === 1 ? 'servicio' : 'servicios'}`, desdeTxt(ss)].filter(Boolean).join(' · ') })))));
 
     const vigentes = PROMOS.filter(promoVigente);
-    const banner = vigentes.length ? h('section', { class: 'banner-temporada', 'aria-labelledby': 'h-temp' }, h('div', { class: 'contenedor' },
-      h('small', { class: 'eyebrow', texto: 'TEMPORADA · 8.º ANIVERSARIO' }), h('h2', { id: 'h-temp' }, 'Celebramos contigo hasta el 15 de diciembre'),
-      h('p', { class: 'ayuda', texto: 'Promociones de aniversario en pesos colombianos. Desliza para ver todas.' }),
-      h('div', { class: 'promo-grid promo-fila' }, vigentes.map(p => tarjetaPromo(p))))) : null;
+    const temporada = vigentes.length ? seccion('temporada', { tinte: true, eyebrow: 'TEMPORADA · 8.º ANIVERSARIO', titulo: 'Celebramos contigo hasta el 15 de diciembre', sub: 'Promociones especiales de aniversario, en pesos colombianos.' },
+      h('div', { class: 'carrusel', tabindex: 0, role: 'region', 'aria-label': 'Promociones de aniversario' }, vigentes.map((p, k) => h('div', { ...rev(k % 4), class: 'rev slide' }, promoMini(p))))) : null;
 
-    const valorados = h('section', { class: 'contenedor seccion', 'aria-labelledby': 'h-val' }, h('h2', { id: 'h-val' }, 'Nuestros servicios más valorados'),
-      MAS_VALORADOS.map(([titulo, texto, ids, cat]) => { const ss = ids.map(servicio).filter(Boolean); return ss.length ? h('div', { class: 'destacado' },
-        h('h3', { texto: titulo }), h('p', { class: 'ayuda', texto: texto }),
-        h('ul', { class: 'fichas' }, ss.map(s => ficha(s, { compacta: true }))),
-        enlace(`${BASE}/servicios?cat=${cat}`, { class: 'enlace-catalogo' }, `Ver todo en ${titulo.toLowerCase()} →`)) : null; }));
+    const valorados = seccion('valorados', { eyebrow: 'LOS MÁS ELEGIDOS', titulo: 'Nuestros servicios más valorados' },
+      h('div', { class: 'duo' }, MAS_VALORADOS.map(([titulo, texto, ids, cat], k) => { const ss = ids.map(servicio).filter(Boolean); return ss.length ? h('article', { ...rev(k), class: 'rev card-lista' },
+        h('h3', { texto: titulo }), h('p', { class: 'ayuda', texto: texto }), h('div', { class: 'filas' }, ss.map(filaSimple)),
+        enlace(`${BASE}/servicios?cat=${cat}`, { class: 'enlace-catalogo' }, `Ver todo en ${titulo.toLowerCase()} →`)) : null; })));
 
-    const como = h('section', { class: 'contenedor seccion', 'aria-labelledby': 'h-como' }, h('h2', { id: 'h-como' }, 'Reservar es fácil'),
-      h('ol', { class: 'pasos-inicio' },
-        h('li', {}, h('b', {}, 'Elige'), ' uno o varios servicios.'), h('li', {}, h('b', {}, 'Escoge'), ' el día y la hora que te queden bien.'), h('li', {}, h('b', {}, 'Déjanos'), ' tu nombre y tu WhatsApp: te confirmamos por ahí.')),
-      h('p', { class: 'nota-pie', texto: 'No pagas nada en línea. Si necesitas cambiar tu cita, lo haces desde el enlace que te enviamos ' + (c.whatsapp.enlace ? 'o escribiéndonos por WhatsApp.' : 'o llamándonos.') }),
-      h('div', { class: 'fila-botones' }, enlace(`${BASE}/reservar`, { class: 'boton' }, 'Agendar mi cita'), botonLlamar()));
+    const conocenos = seccion('conocenos', { tinte: true }, h('div', { class: 'duo duo-media' },
+      h('div', { ...rev(), class: 'rev media' }, h('img', { src: `${BASE}/fotos/facial.webp`, alt: `Limpieza facial profesional en ${n.nombre}, Pereira`, loading: 'lazy', width: 640, height: 747, decoding: 'async' })),
+      h('div', { ...rev(1), class: 'rev texto-bloque' }, h('small', { class: 'eyebrow', texto: 'CONÓCENOS' }), h('h2', { id: 'h-conocenos', texto: 'Cuidado cercano, sin afán' }),
+        h('p', { texto: n.nosotros?.[1] || 'Cada visita empieza escuchándote: te orientamos para elegir lo que mejor se ajusta a ti.' }),
+        h('ul', { class: 'checks' }, h('li', { texto: 'Te orientamos para elegir el tratamiento adecuado' }), h('li', { texto: 'Te explicamos el procedimiento y los cuidados' }), h('li', { texto: 'Reservas en línea, sin pagar por adelantado' })),
+        enlace(`${BASE}/contacto`, { class: 'boton sec' }, 'Conoce al equipo'))));
 
     const ops = opinionesSeccion();
-    seo({ titulo: `${n.nombre} · Centro estético en Pereira | Depilación láser, masajes y faciales`,
-      descripcion: `Centro estético en ${n.direccion}. Depilación láser diodo, masajes y spa, limpiezas faciales y promociones de aniversario. Agenda tu cita en línea.`, migas: [['Inicio', BASE]] });
+    const dudas = seccion('dudas', { eyebrow: '¿TIENES DUDAS?', titulo: 'Cuéntanos qué buscas y te orientamos', sub: 'Pregúntale al asistente por duración, cuidados o cuál tratamiento te conviene, y reserva en el mismo chat.' },
+      h('div', { class: 'fila-botones centro' }, c.asistente?.activo ? h('button', { type: 'button', class: 'boton', onclick: () => window.VSAsistente?.abrir() }, 'Hablar con el asistente') : botonLlamar('boton'), enlace(`${BASE}/servicios`, { class: 'boton sec' }, 'Explorar servicios')));
+
+    const visita = h('section', { class: 'sw cta-final', id: 'visitanos', 'aria-labelledby': 'h-visitanos' }, h('div', { class: 'contenedor cta-caja' },
+      h('div', { ...rev(), class: 'rev' }, h('h2', { id: 'h-visitanos', texto: 'Te esperamos en Pereira' }), h('p', { texto: [n.direccion, hoy && (n.hoy_abierto ? `Hoy ${hoy.texto}` : 'Hoy estamos cerrados')].filter(Boolean).join(' · ') })),
+      h('div', { class: 'fila-botones' }, enlace(`${BASE}/reservar`, { class: 'boton claro' }, 'Agendar mi cita'), enlace(`${BASE}/contacto`, { class: 'boton fantasma' }, 'Cómo llegar'))));
+
+    seo({ titulo: `${n.nombre} · Centro de cuidado facial y corporal en Pereira`,
+      descripcion: `Centro de cuidado facial y corporal en ${n.direccion}. Depilación láser diodo, masajes y spa, limpiezas faciales y promociones de aniversario. Agenda tu cita en línea.`, migas: [['Inicio', BASE]] });
     const barra = h('div', { class: 'barra-movil' }, h('div', { class: 'fila' }, enlace(`${BASE}/reservar`, { class: 'boton grande', style: 'flex:1;width:auto;min-width:0' }, 'Agendar'), n.telefono && h('a', { class: 'boton sec grande', href: `tel:${n.telefono}`, 'aria-label': `Llamar al ${telTexto(n.telefono)}`, style: 'min-width:0;width:auto;flex:0 0 auto;padding-inline:22px' }, 'Llamar')));
-    montar(cabecera('inicio'), hero, banner, h('main', { id: 'contenido' }, valorados, ops && h('div', { class: 'contenedor' }, ops), como), pie(), barra, whatsappFlotante());
+    montar(cabecera('inicio'), hero, h('main', { id: 'contenido', 'data-web': '1' }, queNecesitas, temporada, valorados, conocenos, ops, dudas, visita), pie(), barra, whatsappFlotante());
+    animar();
   }
 
-  // ───────── Vista: Servicios (catálogo completo) ─────────
+  // ───────── Vista: Servicios (compacto: de categoría a detalle) ─────────
+  function filaServicio(s) {
+    const dato = (t, v) => v && h('p', { class: 'ficha-dato' }, h('b', { texto: `${t}: ` }), v);
+    return h('li', { class: 'item-serv', id: `s-${s.id}` }, h('details', {},
+      h('summary', {},
+        s.foto && h('img', { class: 'f-foto', src: `${BASE}/${s.foto}`, alt: '', loading: 'lazy', width: 44, height: 44, decoding: 'async' }),
+        h('span', { class: 'f-nombre' }, h('b', { texto: s.nombre }), h('small', { texto: [s.duracion_texto || 'Duración por confirmar', s.paquete && s.precio && s.paquete].filter(Boolean).join(' · ') })),
+        h('span', { class: s.precio ? 'f-precio' : 'f-precio pendiente', texto: precioDe(s) }),
+        h('span', { class: 'f-mas', 'aria-hidden': 'true' })),
+      h('div', { class: 'f-cuerpo' },
+        h('p', { class: 'ficha-desc', texto: s.descripcion }),
+        dato('Ideal para', s.indicado_para), dato('Sesiones', s.sesiones),
+        s.revisar_condiciones && h('p', { class: 'info-nota', texto: 'Una asesora revisa tu caso antes de la cita.' }),
+        protocolo(s),
+        h('div', { class: 'acciones-info' }, enlace(`${BASE}/reservar?servicio=${s.id}`, { class: 'boton chico', 'aria-label': `Agendar ${s.nombre}` }, 'Agendar'), preguntarAlAsistente(s)))));
+  }
+
   function vistaServicios() {
     const n = S.cfg.negocio, q0 = new URLSearchParams(location.search);
     const st = { q: q0.get('q') || '', cat: q0.get('cat') || '' };
     const lista = grupos();
     const $cuenta = h('p', { class: 'ayuda cuenta', role: 'status', 'aria-live': 'polite' });
-    const $vacio = h('p', { class: 'vacio', hidden: true, texto: 'No encontramos servicios con esa búsqueda. Prueba con otra palabra o escríbele al asistente.' });
+    const $vacio = h('p', { class: 'vacio', hidden: true, texto: 'No encontramos servicios con esa búsqueda. Prueba con otra palabra o pregúntale al asistente.' });
     const $buscar = h('input', { id: 'buscar-servicios', type: 'search', class: 'buscar-servicios', placeholder: 'Busca limpieza, masaje, cejas…', value: st.q, oninput: e => { st.q = e.target.value; filtrar(); } });
     const pills = [['', 'Todos'], ...lista.map(([cat]) => [slug(cat), cat])];
     const $pills = h('div', { class: 'cat-pills', role: 'group', 'aria-label': 'Categorías' }, pills.map(([k, t]) => h('button', { type: 'button', class: 'pill', 'data-k': k, onclick: () => { st.cat = k; filtrar(); } }, t)));
@@ -276,26 +322,26 @@
       let total = 0;
       $app.querySelectorAll('.bloque-cat').forEach(sec => {
         const okCat = !st.cat || sec.dataset.cat === st.cat; let vis = 0;
-        sec.querySelectorAll('.ficha').forEach(f => { const ok = okCat && (!q || slug(f.textContent).replace(/-/g, '').includes(q)); f.hidden = !ok; if (ok) vis++; });
+        sec.querySelectorAll('.item-serv').forEach(f => { const ok = okCat && (!q || slug(f.textContent).replace(/-/g, '').includes(q)); f.hidden = !ok; if (ok) vis++; });
         sec.hidden = !vis; total += vis;
+        if (q && vis) sec.querySelectorAll('details').forEach(d => { d.open = false; });
       });
       $pills.querySelectorAll('.pill').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === st.cat)));
       $cuenta.textContent = `${total} ${total === 1 ? 'servicio' : 'servicios'}`; $vacio.hidden = total > 0;
       const p = new URLSearchParams(); if (st.cat) p.set('cat', st.cat); if (st.q) p.set('q', st.q);
       history.replaceState(null, '', location.pathname + (p.toString() ? `?${p}` : ''));
     }
-    const objetivos = h('div', { class: 'objetivos' }, h('b', { texto: 'Elige por objetivo: ' }), OBJETIVOS.map(([t, k]) => h('button', { type: 'button', class: 'pill chip', onclick: () => { st.q = k; st.cat = ''; $buscar.value = k; filtrar(); } }, t)));
+    const objetivos = h('div', { class: 'objetivos' }, h('span', { texto: 'Elige por objetivo:' }), OBJETIVOS.map(([t, k]) => h('button', { type: 'button', class: 'pill chip', onclick: () => { st.q = k; st.cat = ''; $buscar.value = k; filtrar(); } }, t)));
     const secciones = lista.map(([cat, ss]) => h('section', { class: 'bloque-cat', id: `cat-${slug(cat)}`, 'data-cat': slug(cat), 'aria-labelledby': `h-${slug(cat)}` },
-      h('h2', { id: `h-${slug(cat)}`, texto: cat }), h('p', { class: 'ayuda', texto: [`${ss.length} ${ss.length === 1 ? 'servicio' : 'servicios'}`, desdeTxt(ss)].filter(Boolean).join(' · ') }),
+      h('header', { class: 'bc-cab' }, h('span', { class: 'tile-ico' }, iconoCat(cat)), h('div', {}, h('h2', { id: `h-${slug(cat)}`, texto: cat }), h('p', { class: 'ayuda', texto: [`${ss.length} ${ss.length === 1 ? 'servicio' : 'servicios'}`, desdeTxt(ss)].filter(Boolean).join(' · ') }))),
       ss.every(s => s.revisar_condiciones) && h('p', { class: 'nota-cat', texto: 'Antes de agendar revisa las contraindicaciones de cada tratamiento; una asesora confirma tu caso antes de la cita. Puedes agendar varios servicios en la misma visita.' }),
-      h('ul', { class: 'fichas' }, ss.map(s => ficha(s)))));
+      h('ul', { class: 'lista-compacta' }, ss.map(filaServicio))));
     seo({ titulo: `Servicios y valores en Pereira: depilación láser, masajes y faciales | ${n.nombre}`,
-      descripcion: `Catálogo completo de ${n.nombre} en Pereira: depilación láser diodo, spa y masajes, limpiezas faciales, cejas y pestañas, cuerpo y sueroterapia, con valor, duración y cuidados.`, migas: [['Inicio', BASE], ['Servicios', `${BASE}/servicios`]] });
+      descripcion: `Servicios de ${n.nombre} en Pereira: depilación láser diodo, spa y masajes, limpiezas faciales, cejas y pestañas, cuerpo y sueroterapia, con valor, duración y cuidados.`, migas: [['Inicio', BASE], ['Servicios', `${BASE}/servicios`]] });
     const barra = h('div', { class: 'barra-movil' }, h('div', { class: 'fila' }, enlace(`${BASE}/reservar`, { class: 'boton grande', style: 'flex:1;width:auto;min-width:0' }, 'Agendar')));
-    montar(cabecera('servicios'), h('main', { class: 'contenedor pagina', id: 'contenido' },
-      h('h1', { texto: 'Servicios y tratamientos en Pereira' }),
-      h('p', { class: 'intro', texto: `Conoce cada tratamiento de ${n.nombre}: qué es, para quién es ideal, cuánto dura, su valor y los cuidados. Elige el que más se acerque a lo que buscas y agéndalo en pocos pasos, solo o combinado con otros servicios.` }),
-      objetivos, h('label', { for: 'buscar-servicios', class: 'buscar-label', texto: '¿Qué cuidado buscas?' }), $buscar, $pills, $cuenta, $vacio, secciones), pie(), barra, whatsappFlotante());
+    montar(cabecera('servicios'), h('main', { class: 'contenedor pagina', id: 'contenido', 'data-web': '1' },
+      h('header', { class: 'pagina-cab' }, h('h1', { texto: 'Servicios y valores' }), h('p', { class: 'intro', texto: 'Elige una categoría, abre el tratamiento que te interesa y conoce para quién es ideal, cuánto dura y qué cuidados incluye. Agéndalo solo o combinado con otros servicios.' })),
+      h('div', { class: 'filtros' }, h('label', { for: 'buscar-servicios', class: 'solo-lectores', texto: '¿Qué cuidado buscas?' }), $buscar, $pills, objetivos), $cuenta, $vacio, secciones), pie(), barra, whatsappFlotante());
     filtrar();
   }
 
@@ -305,12 +351,11 @@
     const mapa = n.coordenadas ? h('iframe', { class: 'mapa', title: `Mapa de ${n.nombre}: ${n.direccion}`, loading: 'lazy', referrerpolicy: 'no-referrer-when-downgrade', src: `https://www.google.com/maps?q=${n.coordenadas.lat},${n.coordenadas.lng}&z=17&output=embed` }) : null;
     const redes = [n.instagram && ['Instagram', n.instagram], n.facebook && ['Facebook', n.facebook], n.opiniones?.enlace && ['Opiniones en Google', n.opiniones.enlace], wa && ['WhatsApp', wa]].filter(Boolean);
     seo({ titulo: `Contacto y ubicación · ${n.direccion} | ${n.nombre}`,
-      descripcion: `Visítanos en ${n.direccion}. Horarios, teléfono, mapa y cómo llegar a ${n.nombre}, centro estético en ${n.ciudad || 'Pereira'}. Conoce nuestra historia.`, migas: [['Inicio', BASE], ['Contacto', `${BASE}/contacto`]] });
+      descripcion: `Visítanos en ${n.direccion}. Horarios, teléfono, mapa y cómo llegar a ${n.nombre}, centro de cuidado facial y corporal en ${n.ciudad || 'Pereira'}. Conoce nuestra historia.`, migas: [['Inicio', BASE], ['Contacto', `${BASE}/contacto`]] });
     const barra = h('div', { class: 'barra-movil' }, h('div', { class: 'fila' }, enlace(`${BASE}/reservar`, { class: 'boton grande', style: 'flex:1;width:auto;min-width:0' }, 'Agendar'), n.telefono && h('a', { class: 'boton sec grande', href: `tel:${n.telefono}`, style: 'min-width:0;width:auto;flex:0 0 auto;padding-inline:22px' }, 'Llamar')));
-    montar(cabecera('contacto'), h('main', { class: 'contenedor pagina', id: 'contenido' },
-      h('h1', { texto: 'Contacto y ubicación' }),
-      h('p', { class: 'intro', texto: `Estamos en ${n.direccion}. Te esperamos para que hagas una pausa y te cuides.` }),
-      h('div', { class: 'contacto-grid' },
+    montar(cabecera('contacto'), h('main', { class: 'contenedor pagina', id: 'contenido', 'data-web': '1' },
+      h('header', { class: 'pagina-cab' }, h('h1', { texto: 'Contacto y ubicación' }), h('p', { class: 'intro', texto: `Estamos en ${n.direccion}. Te esperamos para que hagas una pausa y te cuides.` })),
+      h('div', { class: 'duo contacto-grid' },
         h('section', { class: 'panel', 'aria-labelledby': 'h-visita' }, h('h2', { id: 'h-visita' }, 'Visítanos'),
           h('ul', { class: 'datos-rapidos' },
             h('li', {}, svg(ICONO_PIN), h('span', {}, h('b', { texto: n.direccion }), n.como_llegar && h('small', { style: 'display:block;color:var(--suave)', texto: n.como_llegar }), n.mapa_url && externo(n.mapa_url, 'Cómo llegar', { style: 'display:block' }))),
@@ -321,17 +366,16 @@
           redes.length > 0 && [h('h3', {}, 'Síguenos y escríbenos'), h('ul', { class: 'etiquetas' }, redes.map(([t, u]) => h('li', { style: 'padding:0;border:0' }, externo(u, t))))]),
         mapa),
       n.nosotros?.length > 0 && h('section', { class: 'nosotros', 'aria-labelledby': 'h-nos' }, h('h2', { id: 'h-nos' }, `Nosotros · ${n.nombre}`),
-        h('div', { class: 'nosotros-grid' }, h('img', { src: `${BASE}/fotos/equipo.jpg`, alt: `Especialista de ${n.nombre}`, loading: 'lazy', width: 315, height: 405 }), h('div', {}, n.nosotros.map(t => h('p', { texto: t })))))),
+        h('div', { class: 'duo duo-media' }, h('div', { class: 'media' }, h('img', { src: `${BASE}/fotos/equipo.webp`, alt: `Equipo de ${n.nombre} en Pereira`, loading: 'lazy', width: 960, height: 1280, decoding: 'async' })), h('div', { class: 'texto-bloque' }, n.nosotros.map(t => h('p', { texto: t })))))),
       pie(), barra, whatsappFlotante());
   }
-
 
   function tarjetaPromo(p, detalle = false) {
     const vigente = promoVigente(p);
     const reservar = p.servicio && vigente && servicio(p.servicio);
     const href = `${BASE}/reservar?servicio=${p.servicio}&cod=${p.id.toUpperCase()}`;
     const contacto = S.cfg.whatsapp.numero ? `https://wa.me/${S.cfg.whatsapp.numero}?text=${encodeURIComponent('Hola, me interesa la promoción '+p.nombre+' por '+cop(p.precio))}` : S.cfg.negocio.instagram;
-    return h('article', {class:'promo-card'}, detalle && h('img',{class:'promo-art',src:`${BASE}/fotos/promo-${p.foto}.png`,alt:`Diseño de la promoción ${p.nombre}`,loading:'lazy'}),
+    return h('article', {class:'promo-card'}, detalle && h('img',{class:'promo-art',src:`${BASE}/fotos/promo-${p.foto}.webp`,alt:`Diseño de la promoción ${p.nombre}`,loading:'lazy'}),
       h('div', {class:'promo-contenido'}, h('small', {class:'eyebrow',texto:'8.º ANIVERSARIO · HASTA EL 15 DIC 2026'}),
         h(detalle ? 'h1' : 'h3', {texto:p.nombre}), h('p',{texto:p.incluye}),
         h('div',{class:'promo-precio'}, p.antes && h('del',{texto:cop(p.antes)}), h('strong',{texto:cop(p.precio)})),

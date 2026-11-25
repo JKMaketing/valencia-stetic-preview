@@ -339,7 +339,7 @@
     "_nota": "Datos de la p\xE1gina p\xFAblica de reservas (/reservas). null o lista vac\xEDa = no se muestra. Nada de aqu\xED se inventa: se completa cuando el centro lo confirme. opiniones: copiadas a mano de Google Maps (solo rese\xF1as de los \xFAltimos 365 d\xEDas, 5 estrellas, sin editar); alternativa autom\xE1tica: API de Places (requiere clave de Google Cloud).",
     "whatsapp": null,
     "instagram": "https://www.instagram.com/valenciastetic/",
-    "frase": "Centro Est\xE9tico en Pereira",
+    "frase": "Centro de cuidado facial y corporal en Pereira",
     "descripcion": "Un espacio para hacer una pausa y cuidarte, con orientaci\xF3n del equipo para elegir lo que mejor se ajuste a ti.",
     "comodidades": [],
     "galeria": [],
@@ -662,7 +662,7 @@
       "procedimiento": "Higiene de la piel, exfoliaci\xF3n, vapor ozono, extracci\xF3n, mascarilla de aloe, l\xE1mpara LED, drenaje linf\xE1tico, hidratante y bloqueador.",
       "indicado_para": "Eliminaci\xF3n de c\xE9lulas muertas y poluci\xF3n, comedones, hidrataci\xF3n y nutrici\xF3n facial.",
       "cuidados": "No exposici\xF3n directa al sol 1 d\xEDa antes y 1 d\xEDa despu\xE9s; no jacuzzi, sauna, turco o piscina en las pr\xF3ximas 24 horas; evitar maquillarse en las pr\xF3ximas 12 horas; no aplicar lociones despigmentantes 1 d\xEDa antes ni 2 d\xEDas despu\xE9s.",
-      "foto": "fotos/facial.jpg"
+      "foto": "fotos/facial.webp"
     },
     {
       "id": "limpieza_luxury",

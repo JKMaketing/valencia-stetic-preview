@@ -339,7 +339,7 @@
     "_nota": "Datos de la página pública de reservas (/reservas). null o lista vacía = no se muestra. Nada de aquí se inventa: se completa cuando el centro lo confirme. opiniones: copiadas a mano de Google Maps (solo reseñas de los últimos 365 días, 5 estrellas, sin editar); alternativa automática: API de Places (requiere clave de Google Cloud).",
     "whatsapp": null,
     "instagram": "https://www.instagram.com/valenciastetic/",
-    "frase": "Centro Estético en Pereira",
+    "frase": "Centro de cuidado facial y corporal en Pereira",
     "descripcion": "Un espacio para hacer una pausa y cuidarte, con orientación del equipo para elegir lo que mejor se ajuste a ti.",
     "comodidades": [],
     "galeria": [],
