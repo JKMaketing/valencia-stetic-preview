@@ -147,3 +147,18 @@ export function preguntaDetalle(texto) {
   if (/\b(que incluye|que trae|que hacen|en que consiste|procedimiento|como es|que se hace)/.test(t)) return 'incluye';
   return null;
 }
+
+/** Señales emocionales o de contexto de la persona (para acompañar antes de responder). Devuelve la frase empática o null. */
+export function empatia(texto) {
+  const t = normalizar(texto);
+  const reglas = [
+    [/\b(me da miedo|tengo miedo|me asusta|nerviosa|nervioso|nervios|me da susto|inseguro|insegura)\b/, 'Es totalmente normal sentir nervios antes de un tratamiento; vamos paso a paso y te explico todo antes de que decidas nada.'],
+    [/\b(primera vez|nunca me he hecho|nunca he ido|no se por donde empezar|no sé por dónde empezar)\b/, 'Qué bueno que te animes a dar este primer paso. Te acompaño con calma para que elijas lo que realmente te conviene.'],
+    [/\b(estresad|agotad|cansad|agotamiento|burnout|no puedo mas|no aguanto)\b/, 'Siento que vengas con tanto cansancio; mereces una pausa. Veamos qué te puede hacer bien.'],
+    [/\b(me siento mal con mi (piel|cuerpo|cara)|me averguenza|me da verguenza|me acomplejo|complejo|acomplejad|no me gusta mi (piel|cuerpo|cara))\b/, 'Gracias por contármelo con confianza. Hay tratamientos que pueden ayudarte y lo importante es elegir el adecuado para tu caso; te oriento sin ningún apuro.'],
+    [/\b(urgente|tengo prisa|rapido|rápido|a las carreras|estoy afanada|estoy afanado)\b/, 'Voy directo al grano para que ahorres tiempo.'],
+    [/\b(cumpleanos|cumpleaños|aniversario|boda|matrimonio|evento|viaje|graduacion|graduación)\b/, '¡Qué bonita ocasión! Hagamos que llegues radiante.'],
+  ];
+  for (const [re, frase] of reglas) if (re.test(t)) return frase;
+  return null;
+}

@@ -39,7 +39,7 @@ function paginaReservas(res, p) {
   const sub = p.replace(/^\/reservas\/?/, '');
   const cabeceras = {
     'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Cache-Control': 'no-cache',
-    'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+    'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://www.google.com; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
   };
   let archivo, tipo;
   if (ARCHIVOS_RESERVAS[sub]) { archivo = path.join('reservas', sub); tipo = ARCHIVOS_RESERVAS[sub]; }

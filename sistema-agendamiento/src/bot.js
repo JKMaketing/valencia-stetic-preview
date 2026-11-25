@@ -41,7 +41,7 @@ const BOTON_ASESORA = { id: 'act:asesora', titulo: 'Hablar con asesora' };
 // ───────── Piezas de conversación ─────────
 function bienvenida(c) {
   const n = primerNombre(c);
-  return `Hola${n ? ' ' + n : ''}, gracias por escribir a ${negocio.nombre}. Estamos en ${negocio.direccion}. Te ayudo a conocer nuestros servicios y a agendar tu cita aquí mismo, en pocos pasos.`;
+  return `Hola${n ? ' ' + n : ''} 💙 gracias por escribir a ${negocio.nombre}. Estamos en ${negocio.direccion}. Cuéntame qué te gustaría cuidar o mejorar y te recomiendo lo que mejor te quede; si ya sabes qué tratamiento quieres, te muestro horarios en un momento.`;
 }
 
 // Con muchos servicios el menú va por categorías (una lista de WhatsApp admite máximo 10 filas en total).
@@ -75,7 +75,7 @@ function mostrarCategoria(t, slug, pagina = 0) {
   return t.decir(lista(`*${nombre}*\n¿Cuál te interesa?`, 'Ver opciones', [{ titulo: nombre.slice(0, 24), filas }]));
 }
 
-function menuServicios(intro = '¿Qué servicio quieres conocer o agendar?') {
+function menuServicios(intro = '¿Por dónde empezamos? Elige una categoría y te cuento todo con calma.') {
   if (servicios.length > 8 && categoriasServicios().size > 1) return menuCategorias(intro);
   return lista(intro, 'Ver servicios', [{
     titulo: 'Servicios',
@@ -107,6 +107,19 @@ function fichaServicio(s) {
     { id: `inf:mas:${s.id}`, titulo: 'Más información' },
     { id: 'act:menu', titulo: 'Ver otro servicio' },
   ]);
+}
+
+/** Resumen corto y directo: valor, duración, recomendaciones clave y siguiente paso (horarios). */
+function resumenRapido(s, c) {
+  const n = primerNombre(c);
+  const recortar = (txt, max) => { const t = String(txt || '').replace(/\s+/g, ' ').trim(); if (t.length <= max) return t; const corte = t.slice(0, max); const i = Math.max(corte.lastIndexOf('. '), corte.lastIndexOf('; ')); return (i > 60 ? corte.slice(0, i + 1) : corte.replace(/[ ,;]+\S*$/, '') + '…'); };
+  const l = [`${n ? n + ', ' : ''}te cuento lo esencial de *${s.nombre}* 💙`, '', `• Valor: ${precioTxt(s)}`, `• Duración: ${s.duracion_texto || 'te la confirma el equipo al agendar'}`];
+  const rec = s.cuidados ? recortar(s.cuidados, 190) : (negocio.indicaciones_generales || '');
+  if (rec) l.push(`• Recomendaciones: ${rec}`);
+  if (s.alerta) l.push(`⚠️ ${recortar(s.alerta, 170)}`);
+  if (s.revisar_condiciones) l.push('• Una asesora revisa tu caso antes de la cita para cuidarte bien.');
+  l.push('', 'Si quieres más detalle (procedimiento, sesiones o contraindicaciones), pídemelo cuando quieras. Ahora cuéntame para qué día te gustaría agendar 👇');
+  return l.join('\n');
 }
 
 const SECCIONES = [['procedimiento', 'Procedimiento en cabina'], ['indicado_para', 'Indicado para'], ['sesiones', 'Sesiones'], ['resultados', 'Resultados'], ['cuidados', 'Cuidados y recomendaciones'], ['retoque', 'Retoques'], ['pago', 'Forma de pago'], ['contraindicaciones', 'Contraindicaciones']];
@@ -217,10 +230,10 @@ function iniciarAgenda(t, servicioId) {
     t.decir(texto(`En este momento no tengo cupos en línea para ${s.nombre} en los próximos días.`));
     return derivar(t, 'sin_cupos');
   }
-  t.decir(lista(`¿Qué día te queda mejor para tu cita de ${s.nombre}?`, 'Ver días', [{
+  t.decir(lista(`${t.datos.servicio === sid && t.datos._acompanado ? '' : 'Genial, te acompaño con la cita. '}¿Qué día te queda más cómodo para ${s.nombre}?`, 'Ver días', [{
     titulo: 'Días con cupo',
     filas: dias.map(d => ({ id: `day:${d.fecha}`, titulo: mayus(fechaCorta(d.fecha)), descripcion: `${d.cupos} horario${d.cupos === 1 ? '' : 's'} disponible${d.cupos === 1 ? '' : 's'}` })),
-  }], { pie: 'También puedes escribir el día, por ejemplo: "el sábado"' }));
+  }], { pie: 'También puedes escribirlo: "el sábado" o "mañana en la tarde"' }));
 }
 
 function mostrarHoras(t, fecha, { pagina = 0, franja = null, aviso = null } = {}) {
@@ -243,7 +256,7 @@ function mostrarHoras(t, fecha, { pagina = 0, franja = null, aviso = null } = {}
   if (paginar && (pagina + 1) * POR_PAGINA < horas.length) filas.push({ id: `slotp:${fecha}:${pagina + 1}`, titulo: 'Más horarios ➜', descripcion: 'Ver horarios más tarde' });
   else if (paginar) filas.push({ id: `slotp:${fecha}:0`, titulo: 'Volver al inicio', descripcion: 'Primeros horarios del día' });
   t.ir('elegir_hora', { fecha });
-  t.decir(lista(`${intro}Horarios libres para ${conArticulo(fechaLarga(fecha))}:`, 'Ver horarios', [{ titulo: 'Horarios', filas }],
+  t.decir(lista(`${intro}Perfecto. Estos son los horarios libres para ${conArticulo(fechaLarga(fecha))}; elige el que mejor se acomode a tu día:`, 'Ver horarios', [{ titulo: 'Horarios', filas }],
     { pie: 'Puedes escribir la hora, por ejemplo: "4 pm"' }));
 }
 
@@ -252,7 +265,7 @@ function elegirHora(t, inicio) {
   if (t.datos.reprogramar || t.c.nombre) { t.ir('confirmar'); return t.decir(resumenCita(t.c, t.datos)); }
   t.ir('pedir_nombre');
   const bs = t.c.nombre_perfil && nlu.limpiarNombre(t.c.nombre_perfil) ? [{ id: 'nom:perfil', titulo: nlu.limpiarNombre(t.c.nombre_perfil) }] : null;
-  const pregunta = '¡Perfecto! ¿A nombre de quién agendo la cita? Escríbeme nombre y apellido.';
+  const pregunta = '¡Listo, ese horario es tuyo mientras terminamos! ¿A nombre de quién agendo la cita? Escríbeme nombre y apellido.';
   t.decir(bs ? botones(pregunta + ' O toca el botón si es a tu nombre.', bs) : texto(pregunta));
 }
 
@@ -274,7 +287,7 @@ async function confirmarReserva(t) {
     t.limpiar();
     db.avanzarEtapa(t.c.wa_id, 'Cita agendada', { forzar: true });
     const partes = [
-      'Listo, tu cita quedó agendada ✅', '',
+      'Listo, tu cita quedó agendada ✅ Me alegra que te cuides, te esperamos con mucho gusto.', '',
       `*${s.nombre}*${s.requiere_valoracion ? ' (orientación)' : ''}`,
       mayus(fechaHoraLarga(cita.inicio)),
       negocio.direccion,
@@ -391,6 +404,14 @@ async function manejarBoton(t, id) {
   const [tipo, a, b, c] = id.split(':');
   if (tipo === 'svc') return mostrarServicio(t, a);
   if (tipo === 'cat') return mostrarCategoria(t, a, Number(b) || 0);
+  if (tipo === 'inf' && a === 'rapido') {
+    const s = servicioPorId(b);
+    if (!s) return mostrarMenu(t);
+    t.decir(texto(resumenRapido(s, t.c)));
+    t.datos._acompanado = true;
+    db.avanzarEtapa(t.c.wa_id, s.precio ? 'Precio enviado' : 'Orientado');
+    return iniciarAgenda(t, s.id);
+  }
   if (tipo === 'inf' && a === 'mas') {
     const s = servicioPorId(b);
     if (!s) return mostrarMenu(t);
@@ -484,6 +505,8 @@ function agendarDesdeTexto(t, sid, txt) {
 
 // ───────── Texto libre ─────────
 async function manejarTexto(t, txt, { primerMensaje }) {
+  const emp = nlu.empatia(txt);
+  if (emp && !t.estado?.startsWith?.('pedir_')) t.decir(texto(emp));
   // 1) Pasos que esperan un dato concreto
   if (t.estado === 'pedir_nombre') {
     const nombre = nlu.limpiarNombre(txt);

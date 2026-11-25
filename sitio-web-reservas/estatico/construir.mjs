@@ -56,7 +56,7 @@ copiar(path.join(sql, 'sql-wasm.wasm'), path.join(RES, 'sql-wasm.wasm'));
 
 // 3b) Rutas internas con su propia carpeta (así responden 200 y no dependen del 404.html)
 const slugsPromo = [...fs.readFileSync(path.join(origen, 'app.js'), 'utf8').matchAll(/"id": "([a-z0-9-]+)", "nombre"/g)].map(m => m[1]);
-for (const ruta of ['demo', 'reservar', 'mis-citas', 'privacidad', ...slugsPromo.map(s => `promo/${s}`)]) {
+for (const ruta of ['demo', 'reservar', 'mis-citas', 'privacidad', 'servicios', 'contacto', 'nosotros', ...slugsPromo.map(s => `promo/${s}`)]) {
   fs.mkdirSync(path.join(RES, ruta), { recursive: true });
   fs.copyFileSync(path.join(RES, 'index.html'), path.join(RES, ruta, 'index.html'));
 }

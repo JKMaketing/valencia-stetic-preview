@@ -256,6 +256,13 @@
     if (!$msgs.children.length) await cargarHistorial();
     await decir(texto);
   }
-  window.VSAsistente = { preguntar, pintarDemo, abrir: () => $panel && abrir(true), listo: () => !!cfg?.asistente?.activo };
+  /** Resumen directo del tratamiento (valor, duración, recomendaciones) y pregunta de horarios. */
+  async function resumen(id, nombre) {
+    if (!$panel) return;
+    abrir(true, false);
+    if (!$msgs.children.length) await cargarHistorial();
+    await elegir(`inf:rapido:${id}`, `Quiero un resumen de ${nombre}`);
+  }
+  window.VSAsistente = { preguntar, resumen, pintarDemo, abrir: () => $panel && abrir(true), listo: () => !!cfg?.asistente?.activo };
   const listo = new Promise(res => { const ir = () => iniciar().then(res, res); if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ir); else ir(); });
 })();

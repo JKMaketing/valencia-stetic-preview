@@ -90,7 +90,7 @@ export function configPublica() {
       telefono: /^\+\d{8,15}$/.test(negocio.web?.telefono || '') ? negocio.web.telefono : null, coordenadas: negocio.web?.coordenadas || null,
       opiniones: opinionesPublicas(), confianza: negocio.web?.confianza || null,
       facebook: String(negocio.web?.facebook || '').startsWith('https://') ? negocio.web.facebook : null,
-      instagram: negocio.web?.instagram || null, comodidades: negocio.web?.comodidades || [], galeria: (negocio.web?.galeria || []).map(g => ({ src: fotoValida(g.src || g), alt: limpiar(g.alt || '', 120) })).filter(g => g.src),
+      instagram: negocio.web?.instagram || null, nosotros: (negocio.web?.nosotros || []).map(t => limpiar(t, 600)).filter(Boolean), comodidades: negocio.web?.comodidades || [], galeria: (negocio.web?.galeria || []).map(g => ({ src: fotoValida(g.src || g), alt: limpiar(g.alt || '', 120) })).filter(g => g.src),
       privacidad_url: negocio.web?.privacidad_url || null, politica_cambios: String(negocio.politica_cambios || '').replace(/por este chat/gi, 'por WhatsApp'), indicaciones_generales: negocio.indicaciones_generales,
     },
     servicios: servicios.filter(s => !s.vigente_hasta || hoyLocal() <= s.vigente_hasta).map(s => ({
