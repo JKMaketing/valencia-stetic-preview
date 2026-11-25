@@ -59,3 +59,12 @@ El sitio **no es un servidor aparte**: lo sirve `..\sistema-agendamiento` y comp
 - Cambios en los puntos de integración → quien los haga debe correr `npm test` en la agenda (30 pruebas) y anotar aquí qué tocó.
 - Las migraciones de base de datos son **aditivas**: no borrar ni renombrar columnas (la base de producción ya tendrá datos).
 - No cambiar los nombres de eventos de estado de las citas (`agendada`, `confirmada`, `cancelada`, `asistio`, `no_asistio`): los usan el panel, los recordatorios y CAPI.
+
+
+## Integración de aniversario · 17 nov 2026
+
+Se actualizaron directamente en sistema-agendamiento: config/servicios.json (duraciones informadas y tres servicios promocionales), src/server.js (rutas públicas /reservas/promo/slug), src/agenda.js (rechazo de disponibilidad fuera de vigencia), test/flujo.test.js y test/servidor.test.js (expectativas de duración y catálogo). Estos archivos no pertenecen al sincronizador del sitio: conservar esos cambios al trabajar en la agenda. El resto del código y fotos se sincronizó con `node sincronizar.mjs publicar`.
+
+Los paquetes láser reservan primera orientación, el equipo coordina el resto. Combo belleza suma 80 minutos. Las otras cinco ofertas no se añaden al motor hasta confirmar sus duraciones; Gold requiere dos terapeutas a la vez, recurso que el motor actual aún no representa. Vencimiento inclusive el 15 dic 2026, hora Colombia. Reiniciar servidores previamente iniciados para recargar configuración.
+
+También se ajustó config/negocio.json → web.confianza a “8 años cuidando de ti”, coherente con el aniversario informado.

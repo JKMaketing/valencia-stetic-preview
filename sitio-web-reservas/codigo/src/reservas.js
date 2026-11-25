@@ -44,7 +44,9 @@ function validarServicios(ids) {
   const unicos = [...new Set(ids.map(String))];
   if (unicos.length > MAX_SERVICIOS) throw new ErrorWeb(422, `Puedes elegir hasta ${MAX_SERVICIOS} servicios por visita.`);
   const ss = unicos.map(servicioPorId);
+  if (ss.some(s => s?.vigente_hasta && hoyLocal() > s.vigente_hasta)) throw new ErrorWeb(422, 'Esta promoción ya finalizó. Elige un servicio vigente.');
   if (ss.some(s => !s)) throw new ErrorWeb(422, 'Uno de los servicios no existe.');
+  if (ss.length > 1 && ss.some(s => s.vigente_hasta)) throw new ErrorWeb(422, 'Agenda cada promoción en una reserva independiente.');
   const restringidos = ss.filter(s => s.requiere_valoracion || s.solo);
   if (unicos.length > 1 && restringidos.length && ss.some(s => !(s.requiere_valoracion || s.solo) || s.categoria !== restringidos[0].categoria)) throw new ErrorWeb(422, 'La depilación láser (cita de orientación) y el masaje postoperatorio se agendan solos o junto a otros de su misma categoría, no mezclados con el resto.');
   return unicos;
@@ -91,8 +93,10 @@ export function configPublica() {
       instagram: negocio.web?.instagram || null, comodidades: negocio.web?.comodidades || [], galeria: (negocio.web?.galeria || []).map(g => ({ src: fotoValida(g.src || g), alt: limpiar(g.alt || '', 120) })).filter(g => g.src),
       privacidad_url: negocio.web?.privacidad_url || null, politica_cambios: String(negocio.politica_cambios || '').replace(/por este chat/gi, 'por WhatsApp'), indicaciones_generales: negocio.indicaciones_generales,
     },
-    servicios: servicios.map(s => ({
-      id: s.id, nombre: s.nombre, descripcion: s.descripcion, incluye: s.incluye, duracion_min: s.duracion_min, precio: s.precio ?? null, precio_nota: s.precio_nota || null, paquete: s.paquete || null, categoria: s.categoria || null, foto: fotoValida(s.foto),
+    servicios: servicios.filter(s => !s.vigente_hasta || hoyLocal() <= s.vigente_hasta).map(s => ({
+      id: s.id, nombre: s.nombre, descripcion: s.descripcion, incluye: s.incluye, duracion_min: s.duracion_min, precio: s.precio ?? null, precio_nota: s.precio_nota || null, vigente_hasta: s.vigente_hasta || null, paquete: s.paquete || null, categoria: s.categoria || null, foto: fotoValida(s.foto),
+      duracion_texto: s.duracion_texto || null, procedimiento: s.procedimiento || null, indicado_para: s.indicado_para || null, sesiones: s.sesiones || null,
+      cuidados: s.cuidados || null, contraindicaciones: s.contraindicaciones || null, alerta: s.alerta || null, resultados: s.resultados || null, retoque: s.retoque || null, pago: s.pago || null,
       requiere_valoracion: !!s.requiere_valoracion, revisar_condiciones: !!s.revisar_condiciones, solo: !!(s.requiere_valoracion || s.solo), indicaciones: s.indicaciones || null, codigos: s.codigos_anuncio || [],
     })),
     agenda: { dias_adelante: negocio.agenda.dias_adelante, hoy: hoyLocal() },

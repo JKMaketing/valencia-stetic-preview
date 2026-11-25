@@ -59,4 +59,7 @@ function readJson(rel) {
 export const negocio = readJson('config/negocio.json');
 export const servicios = readJson('config/servicios.json').servicios.filter(s => s.activo !== false);
 export const categoriasOrden = readJson('config/servicios.json').categorias || [];   // orden de las categorías en la web y el bot
+export const categoriasInfo = readJson('config/servicios.json').categorias_info || []; // descripción y palabras clave de cada categoría
+// Duración fija en agenda (opcional): negocio.json → agenda.duracion_fija_min fuerza ese tiempo por servicio; la real queda en duracion_real_min.
+for (const s of servicios) { s.duracion_real_min = s.duracion_min; if (negocio.agenda?.duracion_fija_min) s.duracion_min = Number(negocio.agenda.duracion_fija_min); }
 export const servicioPorId = id => servicios.find(s => s.id === id) || null;

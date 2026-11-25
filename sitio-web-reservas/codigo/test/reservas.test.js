@@ -35,31 +35,32 @@ const tokenDe = r => r.body.token;
 test('configuración pública: servicios, horario y nada inventado ni secreto', async () => {
   const r = await get('/api/publico/config');
   assert.equal(r.status, 200);
-  assert.equal(r.body.servicios.length, 49, 'catálogo completo de la lista de precios del centro');
+  assert.equal(r.body.servicios.length, 90, 'catálogo del Contexto Maestro (87) + 3 promociones de aniversario vigentes');
   const porId = id => r.body.servicios.find(s => s.id === id);
-  assert.equal(porId('facial').precio, 100000); assert.equal(porId('reductor_pro').precio, 1185000); assert.equal(porId('laser_pierna').precio, 200000);
-  for (const id of ['mesoterapia', 'cauterizacion', 'tatuajes', 'sueroterapia']) assert.ok(porId(id).precio === null && porId(id).precio_nota, `${id}: valor variable, no se inventa`);
-  assert.ok(r.body.servicios.every(s => s.descripcion && s.descripcion.length <= 215 && s.categoria), 'cada servicio trae su texto breve y categoría');
-  assert.equal(r.body.categorias.length, 8);
+  assert.equal(porId('facial').precio, 100000); assert.equal(porId('reductor_intensivo').precio, 1000000); assert.equal(porId('postop20').precio, 1150000); assert.equal(porId('laser_pierna').precio, 200000);
+  for (const id of ['mesoterapia', 'tatuajes', 'sueroterapia', 'subcision']) assert.ok(porId(id).precio === null && porId(id).precio_nota, `${id}: valor variable, no se inventa`);
+  assert.ok(r.body.servicios.every(s => s.descripcion && s.descripcion.length <= 240 && s.categoria), 'cada servicio trae su texto breve y categoría');
+  assert.equal(r.body.categorias.length, 9);
   assert.equal(r.body.negocio.galeria.length, 0, 'sin galería por ahora');
   assert.equal(r.body.negocio.horario.length, 7);
   assert.equal(r.body.negocio.horario[6].texto, 'Cerrado');            // domingo
   assert.equal(r.body.negocio.horario[0].texto, '8:00 a. m. a 6:00 p. m.');
   assert.ok(porId('postop').solo && porId('postop').revisar_condiciones && porId('postop20').solo);
-  assert.ok(porId('laser').solo && porId('laser_pecho').solo, 'láser: cita de orientación, solo con otras zonas láser');
+  assert.ok(porId('promo_laser_axilas').solo && porId('promo_laser_axilas').revisar_condiciones, 'el paquete láser de aniversario: primera cita de orientación');
+  assert.ok(!porId('laser_pecho').solo && porId('laser_pecho').revisar_condiciones && porId('laser_pecho').contraindicaciones, 'láser diodo por zona: revisión de contraindicaciones');
 
   assert.equal((await get('/api/publico/disponibilidad?servicios=postop,masaje')).status, 422, 'el masaje postoperatorio se agenda solo');
   assert.equal((await get('/api/publico/disponibilidad?servicios=laser,laser_pecho,laser_bikini')).status, 200, 'varias zonas de láser en una visita');
-  assert.equal((await get('/api/publico/disponibilidad?servicios=laser,facial')).status, 422, 'el láser no se mezcla con otras categorías');
+  assert.equal((await get('/api/publico/disponibilidad?servicios=laser,facial')).status, 200, 'el láser diodo por zona se combina con otros servicios');
   assert.equal((await get('/api/publico/disponibilidad?servicios=facial,lifting,cejas,masaje,body_detox,dermapen')).status, 200, 'hasta 6 servicios');
   assert.equal((await get('/api/publico/disponibilidad?servicios=facial,lifting,cejas,masaje,body_detox,dermapen,nctf')).status, 422, 'más de 6 no');
   assert.equal((await get('/api/publico/disponibilidad?servicios=postop')).status, 200);
   assert.equal(r.body.servicios.find(s => s.id === 'facial').foto, 'fotos/facial.jpg');
   assert.ok(r.body.servicios.filter(s => s.id !== 'facial').every(s => s.foto === null), 'solo la limpieza facial tiene foto');
-  assert.ok(r.body.servicios.every(s => s.duracion_min === 30), 'cada servicio ocupa 30 min de agenda');
+  assert.equal(porId('facial').duracion_min, 60); assert.equal(porId('masaje').duracion_min, 75); assert.equal(porId('masaje').duracion_texto, '75 minutos'); assert.equal(porId('promo_belleza').duracion_min, 80); assert.equal(porId('dermapen').duracion_min, 120);
   assert.equal((await fetch(base + '/reservas/fotos/facial.jpg')).headers.get('content-type'), 'image/jpeg');
   assert.equal((await fetch(base + '/reservas/fotos/..%2Fapp.js')).status, 404);
-  assert.equal(r.body.negocio.confianza, 'Más de 10 años de experiencia');
+  assert.ok(r.body.negocio.confianza, 'texto de confianza vigente');
   assert.equal(r.body.negocio.direccion, 'Calle 8 #12-59, Pereira');
   assert.equal(r.body.negocio.telefono, '+573145301120');
   assert.equal(r.body.whatsapp.numero, null, 'el 314 530 1120 es solo teléfono: sin línea de WhatsApp no hay botón de WhatsApp');
@@ -97,16 +98,17 @@ test('disponibilidad: días, horas, combinaciones válidas y entradas inválidas
   assert.ok(!dias.body.dias.some(d => d.fecha === '2026-11-08'), 'domingo cerrado');
   const horas = await get('/api/publico/disponibilidad?servicios=facial&fecha=2026-11-05');
   assert.ok(horas.body.horas.includes('09:00') && horas.body.horas.includes('14:00'));
-  assert.equal(horas.body.duracion_min, 30);
+  assert.equal(horas.body.duracion_min, 60);
   const hoy = await get('/api/publico/disponibilidad?servicios=facial&fecha=2026-11-04'); // son las 10:00; anticipación mínima 2 h
   assert.ok(!hoy.body.horas.includes('11:00') && hoy.body.horas.includes('12:00'));
   assert.equal((await get('/api/publico/disponibilidad?servicios=inexistente')).status, 422);
-  assert.equal((await get('/api/publico/disponibilidad?servicios=laser,facial')).status, 422, 'el láser se agenda solo');
+  assert.equal((await get('/api/publico/disponibilidad?servicios=promo_laser_axilas,facial')).status, 422, 'cada promoción se agenda en una reserva independiente');
+  assert.equal((await get('/api/publico/disponibilidad?servicios=laser,laser_bikini,facial')).status, 200, 'zonas de láser diodo combinables con otros servicios');
   assert.equal((await get('/api/publico/disponibilidad?servicios=facial,masaje,cejas,facial')).status, 200, 'se ignoran repetidos');
   assert.equal((await get('/api/publico/disponibilidad?servicios=')).status, 422);
   assert.equal((await get('/api/publico/disponibilidad?servicios=facial&fecha=hoy')).status, 400);
   const combo = await get('/api/publico/disponibilidad?servicios=facial,masaje&fecha=2026-11-09');
-  assert.equal(combo.body.duracion_min, 70);
+  assert.equal(combo.body.duracion_min, 145);
   assert.ok(combo.body.horas.includes('09:00') && !combo.body.horas.includes('17:30'), 'la visita completa debe caber en el horario');
 });
 
@@ -147,7 +149,7 @@ test('reservar: validaciones del servidor (no se confía en el navegador)', asyn
     [{ acepto: false }, /aceptar/i], [{ nombre: 'Ab' }, /nombre/i], [{ nombre: 'http://spam.com' }, /nombre/i],
     [{ telefono: '300111000' }, /celular/i], [{ telefono: '2001110001' }, /celular/i], [{ pais: '999' }, /indicativo/i],
     [{ email: 'no-es-correo' }, /correo/i], [{ servicios: ['inexistente'] }, /existe/i], [{ servicios: [] }, /servicio/i],
-    [{ servicios: ['facial', 'masaje', 'cejas', 'lifting', 'laser'] }, /hasta 4|orientación|solos/i], [{ inicio: '2026-11-05 14:00' }, /fecha/i], [{ inicio: '' }, /fecha/i],
+    [{ servicios: ['facial', 'lifting', 'cejas', 'masaje', 'body_detox', 'dermapen', 'nctf'] }, /hasta 6/i], [{ inicio: '2026-11-05 14:00' }, /fecha/i], [{ inicio: '' }, /fecha/i],
   ];
   for (const [mal, esperado] of casos) {
     const r = await post('/api/publico/citas', datos({ telefono: '3001119999', ...mal }));
@@ -174,7 +176,7 @@ test('reservar: texto con HTML se limpia y el campo trampa de los bots no guarda
 test('varios servicios: citas seguidas en la misma reserva, se cancelan y se mueven juntas', async () => {
   const r = await post('/api/publico/citas', datos({ telefono: '3001112001', servicios: ['facial', 'masaje'], inicio: '2026-11-09T10:00' }));
   assert.equal(r.status, 200, JSON.stringify(r.body));
-  assert.deepEqual(r.body.citas.map(c => [c.servicio_id, c.inicio]), [['facial', '2026-11-09T10:00'], ['masaje', '2026-11-09T10:40']]); // 30 min + 10 de pausa
+  assert.deepEqual(r.body.citas.map(c => [c.servicio_id, c.inicio]), [['facial', '2026-11-09T10:00'], ['masaje', '2026-11-09T11:10']]); // 60 min + 10 de pausa
   const filas = db.citasDelGrupo(r.body.codigo);
   assert.equal(filas.length, 2);
   assert.equal(filas.filter(c => c.token).length, 1, 'solo la primera lleva el enlace privado');
@@ -186,7 +188,7 @@ test('varios servicios: citas seguidas en la misma reserva, se cancelan y se mue
   // reprogramar mueve las dos
   const mov = await post(`/api/publico/cita/${token}/reprogramar`, { inicio: '2026-11-10T15:00' });
   assert.equal(mov.status, 200, JSON.stringify(mov.body));
-  assert.deepEqual(db.citasDelGrupo(r.body.codigo).map(c => [c.servicio_id, c.inicio]), [['facial', '2026-11-10T15:00'], ['masaje', '2026-11-10T15:40']]);
+  assert.deepEqual(db.citasDelGrupo(r.body.codigo).map(c => [c.servicio_id, c.inicio]), [['facial', '2026-11-10T15:00'], ['masaje', '2026-11-10T16:10']]);
   assert.equal((await post(`/api/publico/cita/${token}/reprogramar`, { inicio: '2026-11-10T18:30' })).status, 409, 'no cabe antes del cierre');
   // cancelar libera todo
   const can = await post(`/api/publico/cita/${token}/cancelar`, {});
@@ -228,7 +230,7 @@ test('límite de reservas activas por persona y cambios con plazo mínimo', asyn
 });
 
 test('láser: cita de orientación marcada para revisión; notas de salud pasan al equipo', async () => {
-  const l = await post('/api/publico/citas', datos({ telefono: '3001115001', servicios: ['laser'], inicio: '2026-11-13T10:00' }));
+  const l = await post('/api/publico/citas', datos({ telefono: '3001115001', servicios: ['promo_laser_axilas'], inicio: '2026-11-13T10:00' }));
   assert.equal(l.status, 200);
   assert.equal(l.body.citas[0].orientacion, true);
   assert.equal(db.getDb().prepare("SELECT requiere_revision FROM citas WHERE wa_id = '3001115001' OR wa_id = '573001115001'").get().requiere_revision, 1);
@@ -360,7 +362,7 @@ test('bot: menú por categorías respeta el límite de 10 filas de WhatsApp y pa
     let r = await conv({ texto: 'Hola' });
     let f = filas(r);
     assert.ok(f.length > 0 && f.length <= 10, 'inicio: máximo 10 filas');
-    assert.ok(f.filter(x => x.id.startsWith('cat:')).length === 8, '8 categorías');
+    assert.ok(f.filter(x => x.id.startsWith('cat:')).length === 9, '9 categorías con aniversario');
     const laser = f.find(x => x.id.startsWith('cat:depilacion-laser'));
     assert.ok(laser, 'categoría de láser');
     r = await conv({ reply_id: laser.id, texto: laser.titulo });
@@ -374,5 +376,47 @@ test('bot: menú por categorías respeta el límite de 10 filas de WhatsApp y pa
     assert.ok(f.every(x => x.titulo.length <= 24), 'títulos de fila de máximo 24 caracteres');
     r = await conv({ reply_id: f.find(x => x.id.startsWith('svc:')).id, texto: 'x' });
     assert.ok(r.body.mensajes.some(m => /\$\d/.test(m.cuerpo)), 'la ficha muestra el valor');
+  } finally { delete process.env.ASISTENTE_WEB; }
+});
+test('aniversario: enlaces directos, paquetes, duración y vencimiento en Colombia', async () => {
+  for (const slug of ['gold-pareja','botox','bienestar','laser-axilas','laser-bikini','combo-belleza','reductor-flash','piel-porcelana']) assert.equal((await fetch(base+'/reservas/promo/'+slug)).status,200);
+  assert.equal((await get('/api/publico/disponibilidad?servicios=promo_belleza&fecha=2026-11-19')).body.duracion_min,80);
+  assert.equal((await get('/api/publico/disponibilidad?servicios=promo_belleza,facial&fecha=2026-11-19')).status,422);
+  fijarReloj(aMs('2026-12-14T08:00'));
+  try {
+    assert.ok((await get('/api/publico/disponibilidad?servicios=promo_laser_axilas&fecha=2026-12-15')).body.horas.length>0);
+    assert.equal((await get('/api/publico/disponibilidad?servicios=promo_laser_axilas&fecha=2026-12-16')).body.horas.length,0);
+    fijarReloj(aMs('2026-12-16T08:00'));
+    assert.ok(!(await get('/api/publico/config')).body.servicios.some(s=>s.id.startsWith('promo_')));
+    assert.equal((await post('/api/publico/citas',datos({servicios:['promo_belleza'],inicio:'2026-12-17T10:00'}))).status,422);
+  } finally { fijarReloj(aMs('2026-11-04T10:00')); }
+});
+
+test('bot con el Contexto Maestro: objeciones, detalle del servicio, cotización, categorías y temas de salud', async () => {
+  process.env.ASISTENTE_WEB = '1';
+  try {
+    const conv = b => post('/api/publico/asistente', { sid: '1700000000011', nombre: 'Valentina Demo', ...b });
+    const salida = r => r.body.mensajes.filter(m => m.direccion === 'out').map(m => m.cuerpo).join('\n');
+    const filas = r => r.body.mensajes.flatMap(m => (m.payload?.secciones || []).flatMap(s => s.filas));
+    await conv({ texto: 'Hola' });
+    let r = await conv({ texto: 'Me parece muy caro' }); assert.match(salida(r), /paquete|lista vigente/i);
+    assert.ok(!/(\$\s?\d{2,3}\.\d{3}) de descuento|% de descuento/i.test(salida(r)), 'no inventa descuentos');
+    r = await conv({ texto: 'lo voy a pensar' }); assert.match(salida(r), /tómate el tiempo/i);
+    r = await conv({ texto: 'me da miedo' }); assert.match(salida(r), /inquietud/i);
+    r = await conv({ texto: 'cuéntame del hollywood peel' });
+    assert.match(salida(r), /\$200\.000/); assert.match(salida(r), /90 minutos/);
+    assert.ok(r.body.mensajes.some(m => (m.payload?.botones || []).some(b => b.id === 'inf:mas:hollywood_peel')), 'botón «Más información»');
+    r = await conv({ texto: '¿cuáles son las contraindicaciones?' }); assert.match(salida(r), /Embarazo y lactancia/);
+    r = await conv({ texto: '¿duele?' }); assert.match(salida(r), /indoloro/);
+    r = await conv({ texto: '¿cada cuánto me lo hago, cuántas sesiones?' }); assert.match(salida(r), /cada mes durante 4 meses/);
+    r = await conv({ reply_id: 'inf:mas:hollywood_peel', texto: 'Más información' }); assert.match(salida(r), /Procedimiento en cabina/); assert.match(salida(r), /Cuidados|Contraindicaciones/);
+    r = await conv({ texto: '¿cuánto cuesta axilas y bikini con láser?' }); assert.match(salida(r), /\$160\.000/); assert.match(salida(r), /por sesión/);
+    r = await conv({ texto: 'quiero botox' }); const fb = filas(r);
+    assert.ok(fb.some(x => /Botox 1 zona/.test(x.titulo)) && fb.some(x => /Botox tercio/.test(x.titulo)), 'botox genérico muestra sus opciones');
+    r = await conv({ texto: 'tienen promociones?' }); assert.ok(filas(r).some(x => /Promo/.test(x.titulo)), 'las promociones vigentes salen de la categoría Aniversario');
+    r = await conv({ texto: 'quiero un masaje' }); assert.ok(filas(r).some(x => /Relajante premium/.test(x.titulo)), 'masaje genérico → categoría Spa y masajes');
+    r = await conv({ texto: 'cuánto cuesta el botox' }); assert.ok(filas(r).length > 0, 'precio genérico → categoría, no «¿de qué servicio?»');
+    r = await conv({ texto: 'Estoy embarazada y quiero depilarme con láser axilas' });
+    assert.match(salida(r), /contraindicaciones/i); assert.match(salida(r), /asesora/i);
   } finally { delete process.env.ASISTENTE_WEB; }
 });

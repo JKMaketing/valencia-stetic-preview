@@ -44,7 +44,7 @@ function paginaReservas(res, p) {
   let archivo, tipo;
   if (ARCHIVOS_RESERVAS[sub]) { archivo = path.join('reservas', sub); tipo = ARCHIVOS_RESERVAS[sub]; }
   else if (/^fotos\/[\w-]+\.(jpe?g|png|webp)$/i.test(sub)) { archivo = path.join('reservas', sub); tipo = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' }[sub.split('.').pop().toLowerCase()]; cabeceras['Cache-Control'] = 'public, max-age=3600'; }
-  else if (sub === '' || ['reservar', 'mis-citas', 'privacidad', 'demo'].includes(sub) || /^cita\/[\w-]{20,64}$/.test(sub)) { archivo = path.join('reservas', 'index.html'); tipo = 'text/html; charset=utf-8'; }
+  else if (sub === '' || ['reservar', 'mis-citas', 'privacidad', 'demo'].includes(sub) || /^promo\/[a-z0-9-]{1,60}$/.test(sub) || /^cita\/[\w-]{20,64}$/.test(sub)) { archivo = path.join('reservas', 'index.html'); tipo = 'text/html; charset=utf-8'; }
   else return json(res, 404, { error: 'No encontrado' });
   const f = path.join(ROOT, 'public', archivo);
   if (!fs.existsSync(f)) return json(res, 404, { error: 'No encontrado' });

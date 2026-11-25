@@ -1,0 +1,12 @@
+# Blueprint de Render: https://render.com/deploy?repo=https://github.com/JKMaketing/valencia-stetic-preview
+services:
+  - type: web
+    name: valencia-stetic-preview
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DEMO_PORT
+        value: "10000"

@@ -170,10 +170,16 @@
       pasos: [{ di: 'Hola, vi HAZ ESPACIO y quiero información sobre limpieza facial', ref: ANUNCIO, nota: 'Escribe desde el anuncio de Meta (el sistema guarda de cuál vino)' }, ...reserva, { fin: 'Cita agendada. Abre la Vista del equipo: ya aparece en el embudo y en la agenda.', equipo: true }] },
     { id: 'libre', titulo: 'Pregunta con sus propias palabras', desc: 'Dirección, horario y precio por texto libre; el asistente responde sin inventar precios y luego agenda.',
       pasos: [{ di: '¿Dónde quedan y cuál es el horario?', nota: 'Pregunta por la ubicación' }, { di: '¿Cuánto vale el masaje relajante?', nota: 'Pregunta el precio: el valor está por confirmar y el asistente no lo inventa' }, ...reserva, { fin: 'Cita agendada desde una conversación libre.', equipo: true }] },
-    { id: 'laser', titulo: 'Depilación láser: cita de orientación', desc: 'El láser empieza con una cita de orientación que queda marcada para que una asesora revise el caso.',
-      pasos: [{ di: 'Hola, vi LASER y quiero información sobre depilación láser', nota: 'Pregunta por depilación láser' }, ...reserva, { fin: 'La cita queda marcada «Revisar condiciones» en la Vista del equipo.', equipo: true }] },
+    { id: 'laser', titulo: 'Depilación láser diodo por zona', desc: 'Valor por zona y sesión, requisitos previos y revisión de contraindicaciones por una asesora antes de la cita.',
+      pasos: [{ di: 'Hola, vi LASER y quiero información sobre depilación láser', nota: 'Pregunta por depilación láser' }, ...reserva, { fin: 'La cita queda marcada «Revisar condiciones»: una asesora valida las contraindicaciones antes de la cita.', equipo: true }] },
     { id: 'postop', titulo: 'Masaje postoperatorio con revisión', desc: 'Servicio sensible: se agenda solo y una asesora revisa el caso antes de la cita.',
       pasos: [{ di: 'Quiero información del masaje postoperatorio', nota: 'Pregunta por el masaje postoperatorio' }, ...reserva, { fin: 'Queda marcada «Revisar condiciones»: el equipo valida la indicación del cirujano.', equipo: true }] },
+    { id: 'objeciones', titulo: 'Objeciones y dudas: precio, miedo y seguridad', desc: 'El asistente responde con empatía y con la información del centro: sin inventar promociones, sin prometer resultados y con las contraindicaciones a la vista.',
+      pasos: [{ di: 'Cuéntame del Hollywood Peel', nota: 'Pregunta por un tratamiento' }, { di: 'Me parece muy caro', nota: 'Objeción de precio' }, { di: '¿Duele?', nota: 'Duda sobre el dolor' }, { di: '¿Cuáles son las contraindicaciones?', nota: 'Pide las contraindicaciones del tratamiento' }, { di: 'Lo voy a pensar', nota: 'Pide tiempo para decidir' }, { fin: 'Respondió cada duda con datos del centro y dejó la puerta abierta a agendar.' }] },
+    { id: 'cotizacion', titulo: 'Cotiza varios servicios a la vez', desc: 'Suma varias zonas de láser (o cera) y dice lo que queda por confirmar; luego agenda.',
+      pasos: [{ di: 'Hola, ¿cuánto cuesta axilas y bikini con láser?', nota: 'Pide el valor de dos zonas' }, { di: '¿Cuántas sesiones necesito?', nota: 'Pregunta por las sesiones' }, ...reserva, { fin: 'Cotizó, resolvió la duda y agendó la primera zona.', equipo: true }] },
+    { id: 'salud', titulo: 'Tema de salud: contraindicaciones y asesora', desc: 'Si la persona menciona embarazo u otra condición, el asistente informa las contraindicaciones del servicio y pasa el caso a una asesora.',
+      pasos: [{ di: 'Hola, estoy embarazada, ¿puedo hacerme el láser diodo en axilas?', nota: 'Menciona un tema de salud' }, { fin: 'Informó las contraindicaciones y pasó el caso a una asesora (etapa «Requiere asesora»).', equipo: true }] },
     { id: 'asesora', titulo: 'Pide hablar con una asesora', desc: 'Cuando el caso es sensible o la clienta lo pide, el asistente pasa la conversación a una persona.',
       pasos: [{ di: 'Hola, estoy embarazada, ¿puedo hacerme un masaje?', nota: 'Cuenta algo de salud' }, { di: 'Quiero hablar con una asesora', nota: 'Pide una persona' }, { fin: 'El bot se pausa y la conversación queda para el equipo (etapa «Requiere asesora»).', equipo: true }] },
     { id: 'cancelar', titulo: 'Agenda y luego cancela', desc: 'La clienta gestiona su propia cita por el chat: el cupo vuelve a quedar libre.',
@@ -244,6 +250,12 @@
     if (cfg.asistente.demo) document.body.prepend(h('div', { class: 'demo-banner', role: 'note' }, 'Versión de demostración · no se envía nada a WhatsApp · usa datos de prueba · ', h('a', { href: '/reservas/demo', 'data-ruta': '1' }, 'Ver recorrido')));
     if (new URLSearchParams(location.search).get('asistente') === '1') abrir(true);
   }
-  window.VSAsistente = { pintarDemo, abrir: () => $panel && abrir(true), listo: () => !!cfg?.asistente?.activo };
+  async function preguntar(texto) {
+    if (!$panel) return;
+    abrir(true, false);
+    if (!$msgs.children.length) await cargarHistorial();
+    await decir(texto);
+  }
+  window.VSAsistente = { preguntar, pintarDemo, abrir: () => $panel && abrir(true), listo: () => !!cfg?.asistente?.activo };
   const listo = new Promise(res => { const ir = () => iniciar().then(res, res); if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ir); else ir(); });
 })();

@@ -32,6 +32,7 @@ const desplazamientos = servicios => { let off = 0; return servicios.map(s => { 
 export function horasDisponiblesSecuencia(servicioIds, fecha, { excluir = new Set() } = {}) {
   const ss = servicioIds.map(servicioPorId);
   if (!ss.length || ss.some(s => !s)) return [];
+  if (ss.some(s => s.vigente_hasta && (hoyLocal() > s.vigente_hasta || fecha > s.vigente_hasta))) return [];
   if (fecha > sumarDias(hoyLocal(), A.dias_adelante || 14)) return []; // fuera de la ventana de agenda: la API no debe aceptar fechas que la interfaz nunca ofrece
   const franja = franjaDelDia(fecha);
   if (!franja) return [];

@@ -1,3 +1,5 @@
+> **Actualización 17 nov 2026:** catálogo con duraciones del listado del usuario, ocho ofertas de aniversario vigentes hasta el 15 dic 2026, páginas `/reservas/promo/...`, buscador y diseños verticales. Informe actual: [entregables-aniversario/REVISION-Y-UX.md](entregables-aniversario/REVISION-Y-UX.md). Las menciones a bloques uniformes de 30 min más abajo describen el estado anterior. Hay 33 pruebas aprobadas. Cinco promociones esperan duración confirmada y usan contacto.
+
 # Sitio web de reservas · Valencia Stetic
 
 Página pública para que las clientas de **Valencia Stetic** (centro de cuidado facial y corporal, Pereira) elijan servicio, día y hora y reserven solas. Es un **clon adaptado** de `reservas.labarberiadelacircunvalar.com` con la marca de Valencia Stetic, y está **conectada al bot de agendamiento por WhatsApp** (misma agenda, misma base de datos, mismo panel).

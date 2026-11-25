@@ -1,10 +1,11 @@
 {
   "_nota": "Datos del centro. Todo lo marcado en 'pendientes_confirmar' debe validarlo Valencia Stetic antes de activar la pauta.",
   "pendientes_confirmar": [
-    "validar los 49 textos breves de servicios (descripción para la web y SEO) y la lista de precios cargada el 10 nov 2026; servicios con valor variable: mesoterapia facial (según ampolla), cauterización (por zona y cantidad), remoción de tatuajes (por tamaño) y sueroterapia (según el suero)",
-    "duraciones reales de los servicios: por ahora cada servicio ocupa 30 min de agenda",
-    "paquetes (pack reductor, reductor pro, pack celulitis, masaje postoperatorio x10 y x20): se agenda la primera sesión; definir cuántas sesiones tiene cada pack y cómo se agendan las demás",
-    "«Spa coreano» (id spa_capilar): confirmar si es el spa capilar y qué incluye",
+    "diferencias entre las listas anteriores y el Contexto Maestro (se usó el Contexto Maestro): lifting $65.000, post operatorio x20 $1.150.000, reductor intensivo $1.000.000, masaje relajante básico $95.000; Reductor pro ($1.185.000) ya no está en el catálogo",
+    "medios de pago aceptados (hoy el bot dice que los confirma el equipo)",
+    "promociones de aniversario (hasta el 15 dic 2026): se conservan las tres que se agendan en línea (láser axilas x10, láser bikini x10 y combo belleza); las otras cinco se atienden por contacto",
+    "catálogo y textos cargados desde el «Contexto Maestro» (25 nov 2026): 87 servicios con precios y duraciones; confirmar con el centro cualquier cambio de precios y los valores variables (mesoterapia facial, sueroterapia, remoción de tatuajes, subcisión, cera de pecho, abdomen y espalda)",
+    "duraciones: la agenda usa la duración real de cada servicio; si el centro prefiere un bloque fijo por ahora, poner agenda.duracion_fija_min (por ejemplo 30) en config/negocio.json",
     "validar «Más de 10 años de experiencia» (la pidió el equipo de proyecto; el sitio de Google del centro dice «Más de 5 años») antes de mantenerla en la web",
     "sitio de Google del centro: tiene horario distinto al del Perfil de Google (lun–vie 8–19 y sáb 9–17) y un teléfono con un dígito distinto (315…); conviene corregirlo",
     "línea de WhatsApp para el bot (el 314 530 1120 es solo teléfono de llamadas; mientras no exista, web.whatsapp queda en null y la página no muestra el botón de WhatsApp)",
@@ -94,6 +95,147 @@
   },
   "faq": [
     {
+      "id": "objecion_precio",
+      "claves": [
+        "muy caro",
+        "es caro",
+        "esta caro",
+        "está caro",
+        "costoso",
+        "muy costoso",
+        "no me alcanza",
+        "mucha plata",
+        "mas barato",
+        "más barato",
+        "rebajas"
+      ],
+      "respuesta": "Entiendo que el valor es una decisión importante. Nuestros valores son los de la lista vigente y varios tratamientos se pueden hacer por sesión o en paquete con abono (por ejemplo, el reductor intensivo: 50% al iniciar y el saldo a más tardar en la quinta sesión; el láser diodo se cobra por sesión y por zona). Si me cuentas qué buscas, te sugiero la opción que mejor se ajuste a lo que necesitas. Si buscas promociones, dime «promociones» y te muestro las vigentes; no invento ninguna."
+    },
+    {
+      "id": "objecion_pensarlo",
+      "claves": [
+        "lo voy a pensar",
+        "lo pienso",
+        "despues te escribo",
+        "después te escribo",
+        "luego te escribo",
+        "mas adelante",
+        "más adelante",
+        "otro dia",
+        "otro día",
+        "no estoy segura",
+        "no estoy seguro",
+        "todavia no",
+        "todavía no",
+        "dejame pensarlo",
+        "déjame pensarlo"
+      ],
+      "respuesta": "Claro, tómate el tiempo que necesites. Cuando quieras retomar, aquí mismo puedo mostrarte los horarios disponibles (la agenda se actualiza en tiempo real). Y si te queda alguna duda del tratamiento (cuidados, sesiones, contraindicaciones o valor), con gusto te la resuelvo ahora."
+    },
+    {
+      "id": "objecion_miedo",
+      "claves": [
+        "me da miedo",
+        "tengo miedo",
+        "me asusta",
+        "da susto",
+        "duele mucho",
+        "es doloroso",
+        "es muy doloroso",
+        "me da nervio",
+        "me da nervios"
+      ],
+      "respuesta": "Es normal sentir inquietud, y está bien preguntar. Cuéntame qué tratamiento te interesa y te explico cómo lo hacemos para que sea lo más llevadero (según el procedimiento usamos, por ejemplo, anestesia o crioterapia) y qué puedes esperar. Si prefieres, una asesora también puede orientarte antes de que decidas."
+    },
+    {
+      "id": "objecion_seguridad",
+      "claves": [
+        "es seguro el centro",
+        "es confiable",
+        "quien lo realiza",
+        "quién lo realiza",
+        "quienes atienden",
+        "quiénes atienden",
+        "quien me atiende",
+        "quién me atiende",
+        "tienen experiencia",
+        "certificad",
+        "licenciad",
+        "registro sanitario",
+        "que tan seguro",
+        "qué tan seguro"
+      ],
+      "respuesta": "Tu seguridad es lo primero. Trabajamos con aparatología de última generación y, antes de procedimientos con láser, ácidos, inyectables o aparatología, revisamos contigo las contraindicaciones; una asesora valida tu caso antes de la cita. Si quieres conocer más sobre el equipo y sus soportes, te lo confirma una asesora para darte datos exactos."
+    },
+    {
+      "id": "objecion_garantia",
+      "claves": [
+        "garantizan",
+        "garantia",
+        "garantía",
+        "resultado garantizado",
+        "funciona de verdad",
+        "sirve de verdad",
+        "seguro funciona",
+        "que tan efectivo",
+        "qué tan efectivo"
+      ],
+      "respuesta": "Cada piel y cada cuerpo responde distinto, por eso no prometemos resultados idénticos para todas las personas. Sí te explicamos qué esperar de cada tratamiento, cuántas sesiones suelen necesitarse y los cuidados que ayudan a que funcione mejor. Cuéntame cuál te interesa y te doy el detalle."
+    },
+    {
+      "id": "menores",
+      "claves": [
+        "mi hija",
+        "mi hijo",
+        "menor de edad",
+        "adolescente",
+        "menores de edad",
+        "mi niña",
+        "mi nina"
+      ],
+      "respuesta": "Para menores hay opciones y restricciones: el Spa Niñas es un plan grupal para 3 a 4 niñas de 4 a 10 años, y Glúteos de acero es apto para menores con permiso de sus padres. En otros tratamientos hay restricciones (por ejemplo, Tensamax no es para menores de 14 años). Dime qué servicio te interesa y te oriento."
+    },
+    {
+      "id": "paquetes",
+      "claves": [
+        "paquete",
+        "paquetes",
+        "combo",
+        "combos",
+        "plan de sesiones",
+        "por sesiones"
+      ],
+      "respuesta": "Tenemos paquetes de sesiones para: Tratamiento reductor intensivo (15 sesiones), Celulitis PEFE (10 sesiones), Glúteos de acero (20 citas en 7 semanas), Post operatorio (10 o 20 sesiones), Divine Body Detox (10 sesiones), Carboxiterapia (5 sesiones) y Zona Negris (5 sesiones). El láser diodo y la cera se cobran por sesión y por zona. Dime cuál te interesa y te doy el valor y la forma de pago."
+    },
+    {
+      "id": "primera_vez",
+      "claves": [
+        "primera vez",
+        "nunca me he hecho",
+        "primera sesion",
+        "primera sesión",
+        "no se que hacerme",
+        "no sé qué hacerme",
+        "que me recomiendan",
+        "qué me recomiendan",
+        "que me recomienda",
+        "qué me recomienda"
+      ],
+      "respuesta": "Bienvenida. Para recomendarte bien, cuéntame qué te gustaría mejorar: por ejemplo manchas, acné, arrugas, depilación, relajación, reducción de medidas o recuperación post operatoria. Con eso te sugiero 1 o 2 tratamientos, con lo que incluyen, la duración y el valor."
+    },
+    {
+      "id": "politica_cambios",
+      "claves": [
+        "politica de cancelacion",
+        "política de cancelación",
+        "politica de cambios",
+        "política de cambios",
+        "cuanto antes puedo cancelar",
+        "cuánto antes puedo cancelar"
+      ],
+      "respuesta": "{politica_cambios}"
+    },
+    {
       "id": "ubicacion",
       "claves": [
         "donde",
@@ -136,7 +278,7 @@
         "efectivo",
         "abono"
       ],
-      "respuesta": "Los medios de pago te los confirma el equipo al momento de tu cita."
+      "respuesta": "Los medios de pago te los confirma el equipo al momento de tu cita. Para paquetes: Reductor intensivo, 50% al iniciar y el saldo a más tardar en la quinta sesión; Glúteos de acero, 50% al iniciar y 50% a la mitad del tratamiento; Post operatorio de 20 sesiones, con pago total. El láser diodo y la cera se pagan por sesión."
     },
     {
       "id": "parqueadero",
@@ -235,7 +377,7 @@
         }
       ]
     },
-    "confianza": "Más de 10 años de experiencia",
+    "confianza": "8 años cuidando de ti",
     "facebook": "https://www.facebook.com/valenciasteticpereira"
   }
 }

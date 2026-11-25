@@ -345,3 +345,32 @@ details.info .info-nota { color: var(--aviso); font-size: .82rem; font-weight: 5
 .cat-tab[aria-selected='true'] .cat-sel { background: #fff; }
 .reserva-grid > div { min-width: 0; }
 .cat-tabs { max-width: 100%; }
+
+/* Campaña aniversario: jerarquía y acceso directo a cada oferta. */
+.eyebrow{font-size:.7rem;letter-spacing:.16em;font-weight:600;color:var(--azul-fuerte)}
+.promociones h2{font-family:Georgia,serif;font-size:clamp(1.9rem,4vw,2.7rem);line-height:1.13;font-weight:400;margin:12px 0}
+.promo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.promo-card{background:linear-gradient(145deg,#fff,#edf8fa);border:1px solid #cce5e9;border-radius:20px;overflow:hidden}
+.promo-contenido{padding:24px}.promo-card h3{font-family:Georgia,serif;font-size:1.7rem;line-height:1.15;margin:14px 0}.promo-card p{font-size:.92rem}
+.promo-precio{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.promo-precio strong{font-size:1.8rem;color:#00647f}.promo-precio del{color:var(--suave)}
+.promo-detalle{max-width:760px;padding-block:36px}.promo-detalle h1{font-family:Georgia,serif;font-size:clamp(2.1rem,6vw,3.6rem);line-height:1.08;font-weight:400}.promo-detalle .promo-contenido{padding:clamp(24px,5vw,48px)}
+.enlace-catalogo{display:block;margin-top:22px}.servicio .mas{width:auto;min-width:44px;border-radius:10px;padding:8px 12px;font-size:.8rem}
+@media(max-width:600px){.promo-grid{grid-template-columns:1fr}.promo-contenido{padding:22px}.promo-detalle{padding-block:20px}.promo-card .boton{min-height:46px}}
+
+.buscar-label{display:block;font-weight:600;margin:22px 0 8px}.buscar-servicios{width:100%;border:1px solid var(--linea);border-radius:12px;padding:14px 16px;margin-bottom:20px;background:white}.servicio[hidden],.cat[hidden]{display:none}
+
+.promo-art{display:block;width:100%;height:auto}.promo-detalle{max-width:1050px}.promo-detalle .promo-card{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);align-items:start}.promo-detalle .promo-contenido{padding:30px}.promo-detalle h1{font-size:clamp(2rem,4vw,3rem)}@media(max-width:700px){.promo-detalle .promo-card{display:flex;flex-direction:column}.promo-detalle .promo-contenido{order:-1;padding:24px}.promo-art{max-width:100%}}
+
+.promo-contacto{display:flex;gap:10px;flex-wrap:wrap}.promo-contacto p{width:100%;margin-bottom:4px}
+
+details.protocolo { margin: 6px 0 4px; border-top: 1px dashed var(--linea); padding-top: 6px; }
+details.protocolo > summary { list-style: none; cursor: pointer; color: var(--azul-fuerte); font-size: .85rem; font-weight: 600; }
+details.protocolo > summary::-webkit-details-marker { display: none; }
+details.protocolo > summary::after { content: ' +'; }
+details.protocolo[open] > summary::after { content: ' −'; }
+details.protocolo .bloque { margin: 8px 0; }
+details.protocolo .bloque b { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }
+details.protocolo .bloque p { margin: 2px 0 0; font-size: .88rem; line-height: 1.5; }
+details.protocolo .bloque.contra p { color: var(--aviso); }
+.alerta-clinica { background: var(--aviso-fondo); color: var(--aviso); border-radius: 10px; padding: 8px 12px; font-size: .86rem; font-weight: 600; margin: 8px 0; }
+.acciones-info { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }

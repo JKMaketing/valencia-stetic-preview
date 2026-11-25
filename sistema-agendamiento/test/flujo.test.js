@@ -80,7 +80,7 @@ test('el cupo ocupado ya no se ofrece a otra persona (capacidad 1 por cabina)', 
   assert.ok(!libres.includes('10:00'), 'misma cabina ocupada');
   assert.ok(!libres.includes('09:30'), 'facial de 60 min chocaría con la cita de las 10');
   assert.ok(!libres.includes('10:30'));
-  assert.ok(libres.includes('11:30'), 'después de cita + pausa de 10 min (11:10) queda libre 11:30');
+  assert.ok(libres.includes('12:00'), 'después de masaje de 90 min y pausa hasta 11:40 queda libre 12:00');
   assert.ok(agenda.horasDisponibles('laser', '2026-11-05').includes('10:00'), 'láser usa otro recurso');
   assert.throws(() => agenda.reservar({ wa_id: '573009999999', servicioId: 'masaje', inicio: '2026-11-05T10:00' }), agenda.CupoOcupadoError);
 });

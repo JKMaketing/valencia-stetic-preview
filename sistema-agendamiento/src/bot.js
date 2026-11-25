@@ -48,7 +48,8 @@ function bienvenida(c) {
 const slugCat = c => String(c).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const categoriasServicios = () => {
   const m = new Map();
-  for (const s of servicios) if (s.categoria) m.set(s.categoria, [...(m.get(s.categoria) || []), s]);
+  const hoy = ahoraLocal().slice(0, 10);
+  for (const s of servicios) if (s.categoria && (!s.vigente_hasta || hoy <= s.vigente_hasta)) m.set(s.categoria, [...(m.get(s.categoria) || []), s]);   // las promociones vencidas desaparecen del menú
   return m;
 };
 const precioCorto = s => (s.precio ? `$${Number(s.precio).toLocaleString('es-CO')}` : (s.precio_nota || 'Valor por confirmar'));
@@ -85,22 +86,78 @@ function menuServicios(intro = '¿Qué servicio quieres conocer o agendar?') {
   }]);
 }
 
+const incluyeUtil = s => (s.incluye && !String(s.incluye).startsWith(`${s.nombre}, con atención`) ? s.incluye : null);
 function fichaServicio(s) {
   const lineas = [
     `*${s.nombre}*`, s.descripcion, '',
-    `• Incluye: ${s.incluye}`,
-    `• Duración aproximada: ${s.duracion_min} minutos`,
+    ...(incluyeUtil(s) ? [`• Incluye: ${incluyeUtil(s)}`] : []),
+    `• Duración: ${s.duracion_texto || 'te la confirma el equipo al agendar'}`,
     `• Valor: ${precioTxt(s)}`,
+    ...(s.pago ? [`• Forma de pago: ${s.pago}`] : []),
+    ...(s.sesiones ? [`• Sesiones: ${s.sesiones}`] : []),
   ];
+  if (s.alerta) lineas.push('', `⚠️ ${s.alerta}`);
   if (s.requiere_valoracion) lineas.push('', 'La primera cita es de orientación: el equipo revisa tu caso y define contigo el plan. No hay un número de sesiones igual para todas las personas.');
   else if (s.revisar_condiciones) lineas.push('', 'Antes de la cita una asesora revisa tu caso contigo para confirmar que el servicio es adecuado para ti.');
   if (env.PUBLIC_URL) lineas.push('', `También puedes reservar en línea: ${enlaceReservas({ servicio: s.id, fuente: 'bot' })}`);
   lineas.push('', '¿Quieres que busquemos un horario?');
+  if (s.contraindicaciones) lineas.push('', 'Antes de agendar, revisa las contraindicaciones en «Más información».');
   return botones(lineas.join('\n'), [
     { id: `act:agendar:${s.id}`, titulo: 'Agendar cita' },
+    { id: `inf:mas:${s.id}`, titulo: 'Más información' },
     { id: 'act:menu', titulo: 'Ver otro servicio' },
-    BOTON_ASESORA,
   ]);
+}
+
+const SECCIONES = [['procedimiento', 'Procedimiento en cabina'], ['indicado_para', 'Indicado para'], ['sesiones', 'Sesiones'], ['resultados', 'Resultados'], ['cuidados', 'Cuidados y recomendaciones'], ['retoque', 'Retoques'], ['pago', 'Forma de pago'], ['contraindicaciones', 'Contraindicaciones']];
+function detalleCompleto(s) {
+  const partes = [`*${s.nombre}*`];
+  if (incluyeUtil(s)) partes.push(`*Qué incluye:* ${incluyeUtil(s)}`);
+  for (const [k, t] of SECCIONES) if (s[k]) partes.push(`*${t}:* ${s[k]}`);
+  if (s.alerta) partes.push(`⚠️ ${s.alerta}`);
+  if (partes.length === 1) partes.push('El equipo te explica el protocolo completo en la cita o con una asesora.');
+  if (s.contraindicaciones) partes.push('Si alguna de estas condiciones aplica en tu caso, cuéntanoslo: una asesora revisa tu caso antes de la cita (esto no reemplaza una valoración médica).');
+  return partes.join('\n\n').slice(0, 3900);
+}
+
+/** Responde una pregunta puntual (cuidados, sesiones, dolor, etc.) con la información del catálogo. */
+function responderDetalle(t, s, campo) {
+  const ofrece = [{ id: `act:agendar:${s.id}`, titulo: 'Agendar cita' }, { id: `inf:mas:${s.id}`, titulo: 'Más información' }, BOTON_ASESORA];
+  const dato = {
+    contraindicaciones: s.contraindicaciones && `Para *${s.nombre}* se tienen en cuenta estas contraindicaciones: ${s.contraindicaciones}${s.alerta ? `\n\n⚠️ ${s.alerta}` : ''}\n\nSi alguna aplica para ti, una asesora revisa tu caso antes de la cita (esto no reemplaza una valoración médica).`,
+    cuidados: (s.cuidados || s.alerta) && `Cuidados y recomendaciones de *${s.nombre}*: ${s.cuidados || ''}${s.alerta ? `\n\n⚠️ ${s.alerta}` : ''}`,
+    sesiones: s.sesiones && `Sobre las sesiones de *${s.nombre}*: ${s.sesiones}`,
+    resultados: (s.resultados || s.sesiones) && `Sobre los resultados de *${s.nombre}*: ${s.resultados || ''}${s.resultados && s.sesiones ? ' ' : ''}${s.sesiones ? `Sesiones: ${s.sesiones}` : ''} Cada persona responde distinto, por eso no prometemos resultados idénticos.`,
+    dolor: dolorTxt(s),
+    duracion: `${s.nombre}: ${s.duracion_texto ? `dura ${s.duracion_texto.toLowerCase()}` : 'la duración te la confirma el equipo al agendar'}.`,
+    incluye: (incluyeUtil(s) || s.procedimiento) && `*${s.nombre}*${incluyeUtil(s) ? ` incluye: ${incluyeUtil(s)}` : ''}${s.procedimiento ? `\n\nEn cabina: ${s.procedimiento}` : ''}`,
+    pago: s.pago ? `Forma de pago de *${s.nombre}*: ${s.pago}` : `Para *${s.nombre}* el valor es ${precioTxt(s)}. Los medios de pago te los confirma el equipo al momento de tu cita.`,
+    retoque: s.retoque && `Retoques de *${s.nombre}*: ${s.retoque}`,
+  }[campo];
+  t.decir(botones((dato || `Esa información de *${s.nombre}* te la confirma una asesora del equipo, para no darte datos imprecisos.`).slice(0, 1000), ofrece));
+}
+
+function dolorTxt(s) {
+  const proc = (s.procedimiento || '').toLowerCase();
+  const alivio = ['anestesia', 'crioterapia'].filter(w => proc.includes(w));
+  const base = s.dolor || (alivio.length ? `En *${s.nombre}* se usa ${alivio.join(' y ')} para que la experiencia sea más llevadera.` : null);
+  return `${base ? base + ' ' : ''}La sensibilidad es distinta en cada persona; si te da inquietud, una asesora puede explicarte qué esperar antes de decidir.`;
+}
+
+/** Cotiza varios servicios: suma lo que tiene valor definido y avisa lo que queda por confirmar. */
+function cotizar(t, ids) {
+  const ss = ids.map(servicioPorId).filter(Boolean).slice(0, 8);
+  const fijos = ss.filter(s => s.precio), variables = ss.filter(s => !s.precio);
+  const total = fijos.reduce((n, s) => n + Number(s.precio), 0);
+  const lineas = ['Te armo la cotización:', '', ...ss.map(s => `• ${s.nombre}: ${precioCorto(s)}`), ''];
+  lineas.push(fijos.length ? `Total de lo que tiene valor definido: $${total.toLocaleString('es-CO')}${variables.length ? `, más ${variables.length} por confirmar` : ''}.` : 'Estos valores te los confirma el equipo según tu caso.');
+  if (ss.some(s => /láser diodo/i.test(s.nombre))) lineas.push('El láser diodo se cobra por sesión y por zona; se recomiendan varias sesiones.');
+  if (ss.some(s => s.paquete)) lineas.push('Los paquetes se pagan según su política (por ejemplo, abono al iniciar).');
+  if (env.PUBLIC_URL) lineas.push('', `Puedes reservar todo junto en línea: ${enlaceReservas({ servicio: ss.map(s => s.id).join(',').slice(0, 200), fuente: 'bot' })}`);
+  t.ir('info_servicio', { servicio: ss[0].id });
+  db.actualizarContacto(t.c.wa_id, { servicio_interes: ss[0].id });
+  db.avanzarEtapa(t.c.wa_id, fijos.length ? 'Precio enviado' : 'Orientado');
+  t.decir(botones(lineas.join('\n'), [{ id: `act:agendar:${ss[0].id}`, titulo: `Agendar ${(ss[0].nombre_corto || ss[0].nombre).slice(0, 11)}` }, { id: 'act:menu', titulo: 'Ver servicios' }, BOTON_ASESORA]));
 }
 
 function resumenCita(c, d) {
@@ -225,6 +282,8 @@ async function confirmarReserva(t) {
       [s.indicaciones, negocio.indicaciones_generales].filter(Boolean).join(' '),
       negocio.politica_cambios,
     ];
+    if (s.cuidados) partes.push('', `Recomendaciones: ${s.cuidados.slice(0, 450)}`);
+    if (s.alerta) partes.push('', `⚠️ ${s.alerta.slice(0, 300)}`);
     if (s.requiere_valoracion || s.revisar_condiciones) partes.push('', 'Una asesora revisará tu caso y te confirmará por aquí las indicaciones previas antes de la cita.');
     partes.push('', 'Te enviaremos un recordatorio el día anterior. Si necesitas cambiarla, escríbeme por aquí.');
     t.decir(texto(partes.join('\n').replace(/\n{3,}/g, '\n\n')));
@@ -332,6 +391,12 @@ async function manejarBoton(t, id) {
   const [tipo, a, b, c] = id.split(':');
   if (tipo === 'svc') return mostrarServicio(t, a);
   if (tipo === 'cat') return mostrarCategoria(t, a, Number(b) || 0);
+  if (tipo === 'inf' && a === 'mas') {
+    const s = servicioPorId(b);
+    if (!s) return mostrarMenu(t);
+    t.ir('info_servicio', { servicio: s.id });
+    return t.decir(botones(detalleCompleto(s), [{ id: `act:agendar:${s.id}`, titulo: 'Agendar cita' }, { id: 'act:menu', titulo: 'Ver otro servicio' }, BOTON_ASESORA]));
+  }
   if (tipo === 'act') {
     if (a === 'agendar') { delete t.datos.reprogramar; return iniciarAgenda(t, b); }
     if (a === 'menu') return mostrarMenu(t);
@@ -455,12 +520,18 @@ async function manejarTexto(t, txt, { primerMensaje }) {
   }
 
   const sid = nlu.detectarServicio(txt);
+  const varios = nlu.detectarServicios(txt);
+  if (varios.length >= 2 && (nlu.preguntaPrecio(txt) || /\b(cotiz|presupuesto|cuanto (seria|serian|me sale|saldria))/i.test(txt))) return cotizar(t, varios);
   const faq = nlu.faqQueResponde(txt);
   if (faq) {
     t.decir(texto(llenar(faq.respuesta)));
     if (sid && !t.datos.servicio) return mostrarServicio(t, sid);
     return repetirPaso(t);
   }
+  const campo = nlu.preguntaDetalle(txt);
+  const sDetalle = servicioPorId(sid || t.datos.servicio || t.c.servicio_interes);
+  if (campo && sDetalle && !nlu.quiereAgendar(txt)) return responderDetalle(t, sDetalle, campo);
+  if (!sid) { const cat = nlu.categoriaDeTexto(txt); if (cat) return mostrarCategoria(t, slugCat(cat), 0); }
   if (nlu.preguntaPrecio(txt)) {
     const s = servicioPorId(sid || t.datos.servicio || t.c.servicio_interes);
     if (s) {
@@ -550,6 +621,8 @@ export async function procesarEntrante(m) {
   } else if (CODIGO_RESERVA.test(txt)) {
     reservaWeb(t, txt);
   } else if (nlu.esSensible(txt)) {
+    const sS = servicioPorId(nlu.detectarServicio(txt) || t.datos?.servicio || c.servicio_interes);
+    if (sS?.contraindicaciones) t.decir(texto(`Gracias por contarnos. Para *${sS.nombre}* se tienen en cuenta estas contraindicaciones: ${sS.contraindicaciones.slice(0, 900)}${sS.alerta ? `\n\n⚠️ ${sS.alerta}` : ''}`));
     derivar(t, 'sensible');
   } else if (nlu.pideAsesora(txt) && !nlu.quiereAgendar(txt)) {
     derivar(t, 'solicitud');

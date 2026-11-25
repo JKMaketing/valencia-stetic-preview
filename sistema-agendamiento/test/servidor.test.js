@@ -81,7 +81,7 @@ test('simulador + panel: agendar y marcar asistencia', async () => {
   assert.ok(res.body.por_anuncio.some(a => a.origen === 'HAZ ESPACIO' && a.con_cita === 1));
   const cfg = await get('/api/config');
   assert.equal(cfg.body.simulacion, true);
-  assert.equal(cfg.body.servicios.length, 49);
+  assert.equal(cfg.body.servicios.length, 90);
 });
 
 test('panel: cita manual bloquea el cupo y el bloqueo de agenda quita horas', async () => {

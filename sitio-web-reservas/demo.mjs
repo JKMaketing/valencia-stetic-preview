@@ -15,9 +15,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-const SITIO = import.meta.dirname, AGENDA = path.resolve(SITIO, '..', 'sistema-agendamiento'), DATOS = path.join(SITIO, 'demo-datos');
+const SITIO = import.meta.dirname, AGENDA = path.resolve(SITIO, '..', 'sistema-agendamiento'), DATOS = process.env.DEMO_DATA_DIR || path.join(SITIO, 'demo-datos');
 const PID = path.join(SITIO, 'demo.pid'), ENLACE = path.join(SITIO, 'demo-enlace.txt'), LOG = path.join(SITIO, 'demo.log');
-const PUERTO = Number(process.env.DEMO_PORT || 3300);
+const PUERTO = Number(process.env.DEMO_PORT || process.env.PORT || 3300);
+// En un hosting (Render, Hugging Face Spaces…) la URL pública llega por variable: DEMO_PUBLIC_URL, RENDER_EXTERNAL_URL o SPACE_HOST.
+const URL_HOSTING = process.env.DEMO_PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || (process.env.SPACE_HOST ? `https://${process.env.SPACE_HOST}` : '');
 const [orden, ...resto] = process.argv.slice(2);
 const comando = ['iniciar', 'estado', 'enlace', 'parar'].includes(orden) ? orden : null;
 const publico = (comando ? resto : [orden, ...resto]).includes('--publico');
@@ -72,7 +74,7 @@ function arrancarServidor(urlPublica) {
   const env = {
     ...process.env, PORT: String(PUERTO), DATA_DIR: DATOS, MODO_DEMO: '1', SIMULADOR: '0', WA_TOKEN: '', WA_PHONE_NUMBER_ID: '',
     PANEL_PASSWORD: crypto.randomBytes(12).toString('base64url'), SESSION_SECRET: crypto.randomBytes(24).toString('hex'),
-    TRUST_PROXY: publico ? '1' : '', PUBLIC_URL: urlPublica || '', RESERVAS_MAX_POR_HORA: '30',
+    TRUST_PROXY: publico || URL_HOSTING ? '1' : '', PUBLIC_URL: urlPublica || URL_HOSTING, RESERVAS_MAX_POR_HORA: '30',
   };
   servidor = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', 'src/server.js'], { cwd: AGENDA, env, stdio: 'inherit' });
   const este = servidor;
@@ -102,7 +104,7 @@ function arrancarTunel() {
   setTimeout(() => { if (!listo && !cerrando) { console.error('El túnel no respondió a tiempo.'); salir(); } }, 45000);
 }
 
-if (!publico) arrancarServidor('');
+if (!publico) arrancarServidor(URL_HOSTING);
 else arrancarTunel();
 
 // Vigilancia: si el enlace público deja de responder (túnel colgado), se reabre

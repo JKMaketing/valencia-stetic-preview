@@ -2,6 +2,9 @@
 (() => {
   'use strict';
   const BASE = '/reservas';
+  const PROMOS = [{"id": "gold-pareja", "nombre": "Gold en pareja", "precio": 300000, "antes": 380000, "incluye": "Masaje relajante + jacuzzi. De regalo: 15 minutos de baño turco.", "nota": "Para dos personas y dos terapeutas simultáneos. Duración total por confirmar.", "foto": "gold", "hasta": "2026-12-15"}, {"id": "botox", "nombre": "Toxina botulínica · tercio superior", "precio": 900000, "antes": 1200000, "incluye": "Incluye limpieza facial profunda.", "nota": "Requiere valoración profesional. Duración por confirmar.", "foto": "botox", "hasta": "2026-12-15"}, {"id": "bienestar", "nombre": "Bienestar", "precio": 175000, "antes": 200000, "incluye": "Masaje relajante + limpieza facial profunda.", "nota": "Duración y protocolo de limpieza por confirmar.", "foto": "bienestar", "hasta": "2026-12-15"}, {"id": "laser-axilas", "nombre": "Láser diodo · axilas", "precio": 480000, "antes": 560000, "incluye": "Paquete de 10 sesiones de axilas.", "nota": "Se agenda la primera cita de orientación. El equipo coordina las sesiones.", "foto": "laser", "servicio": "promo_laser_axilas", "duracion": 15, "hasta": "2026-12-15"}, {"id": "laser-bikini", "nombre": "Láser diodo · bikini", "precio": 700000, "antes": 800000, "incluye": "Paquete de 10 sesiones de bikini.", "nota": "Se agenda la primera cita de orientación. No incluye bikini completo.", "foto": "laser", "servicio": "promo_laser_bikini", "duracion": 30, "hasta": "2026-12-15"}, {"id": "combo-belleza", "nombre": "Combo belleza", "precio": 85000, "incluye": "Depilación de cejas + laminado + lifting coreano.", "nota": "80 minutos: suma de los tiempos individuales. Se reserva una visita.", "foto": "belleza", "servicio": "promo_belleza", "duracion": 80, "hasta": "2026-12-15"}, {"id": "reductor-flash", "nombre": "Reductor flash", "precio": 500000, "incluye": "6 sesiones de masaje reductor + 6 de maderoterapia + 6 de aparatología + 3 quemadores de grasa.", "nota": "Valoración profesional previa. El equipo confirma distribución, duración y detalles del protocolo.", "foto": "reductor", "hasta": "2026-12-15"}, {"id": "piel-porcelana", "nombre": "Piel de porcelana", "precio": 200000, "antes": 250000, "incluye": "Limpieza facial luxury + peeling de hidratación.", "nota": "Duración total por confirmar. Esta promoción es diferente a porcelanización facial.", "foto": "porcelana", "hasta": "2026-12-15"}];
+  const hoyColombia = () => new Intl.DateTimeFormat('sv-SE', {timeZone:'America/Bogota'}).format(new Date());
+  const promoVigente = p => hoyColombia() <= p.hasta;
   const $app = document.getElementById('app');
   const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -62,6 +65,19 @@
   const desdeTxt = ss => { const p = ss.map(s => s.precio).filter(Boolean); return p.length ? `desde ${cop(Math.min(...p))}` : ''; };
   const slug = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const MAX_SERV = 6;
+  const BLOQUES = [['incluye', 'Qué incluye'], ['procedimiento', 'Procedimiento en cabina'], ['indicado_para', 'Indicado para'], ['sesiones', 'Sesiones'], ['resultados', 'Resultados'], ['cuidados', 'Cuidados y recomendaciones'], ['retoque', 'Retoques'], ['pago', 'Forma de pago'], ['contraindicaciones', 'Antes de agendar: contraindicaciones']];
+  const protocolo = s => {
+    const filas = BLOQUES.filter(([k]) => s[k] && !(k === 'incluye' && String(s[k]).startsWith(`${s.nombre}, con atención`)));
+    if (!filas.length && !s.alerta) return null;
+    return h('details', { class: 'protocolo' }, h('summary', {}, h('span', { texto: 'Ver protocolo y cuidados' })),
+      s.alerta && h('p', { class: 'alerta-clinica', texto: `⚠ ${s.alerta}` }),
+      filas.map(([k, t]) => h('div', { class: `bloque${k === 'contraindicaciones' ? ' contra' : ''}` }, h('b', { texto: t }), h('p', { texto: s[k] }))));
+  };
+  const preguntarAlAsistente = s => {
+    const msg = `Hola, quiero información y agendar ${s.nombre}`;
+    if (S.cfg.asistente?.activo && window.VSAsistente) return h('button', { type: 'button', class: 'boton sec chico', onclick: () => window.VSAsistente.preguntar(msg) }, 'Preguntar al asistente');
+    const wa = S.cfg.whatsapp?.enlace; return wa ? h('a', { class: 'boton sec chico', href: wa.replace(/text=[^&]*/, 'text=' + encodeURIComponent(msg)), target: '_blank', rel: 'noopener' }, 'Preguntar por WhatsApp') : null;
+  };
   const esOrientacion = ids => ids.some(i => servicio(i)?.requiere_valoracion);
   const guardado = { leer: () => { try { return JSON.parse(localStorage.getItem('vs_citas') || '[]'); } catch { return []; } }, poner: v => { try { localStorage.setItem('vs_citas', JSON.stringify(v.slice(0, 20))); } catch { /* sin almacenamiento */ } } };
 
@@ -85,6 +101,7 @@
   // ───────── Router ─────────
   function ruta() {
     const p = location.pathname.replace(/\/+$/, '') || BASE, sub = p.slice(BASE.length).replace(/^\//, '');
+    if (sub.startsWith('promo/')) return { v: 'promo', id: sub.slice(6) };
     if (sub === 'reservar') return { v: 'reservar' };
     if (sub === 'mis-citas') return { v: 'mis-citas' };
     if (sub === 'privacidad') return { v: 'privacidad' };
@@ -150,6 +167,7 @@
         n.frase && h('p', { class: 'frase', texto: n.frase }),
         n.confianza && h('p', { class: 'confianza', texto: `✓ ${n.confianza}` }),
         n.descripcion && h('p', { texto: n.descripcion }),
+        enlace(`${BASE}/reservar`, {class:'boton'}, 'Elegir mi tratamiento'),
         h('ul', { class: 'datos-rapidos' },
           h('li', {}, svg(ICONO_RELOJ), h('span', {}, h('span', { class: n.hoy_abierto ? 'punto' : 'punto cerrado', 'aria-hidden': 'true' }), n.hoy_abierto ? `Hoy: ${n.horario.find(x => x.n === hoyDia)?.texto}` : 'Hoy estamos cerrados')),
           h('li', {}, svg(ICONO_PIN), h('span', {}, n.direccion, ' ', n.como_llegar && h('small', { style: 'display:block;color:var(--suave)', texto: n.como_llegar }), n.mapa_url && h('a', { href: n.mapa_url, target: '_blank', rel: 'noopener' }, 'Cómo llegar'))),
@@ -158,15 +176,18 @@
     const itemServicio = s => h('li', { class: 'servicio', id: `s-${s.id}` },
       h('div', { class: 'serv-cab' }, s.foto && h('img', { class: 'serv-foto', src: `${BASE}/${s.foto}`, alt: s.nombre, loading: 'lazy', width: 64, height: 64 }), h('div', {}, h('h3', { texto: s.nombre }))),
       h('span', { class: s.precio ? 'precio' : 'precio pendiente', texto: precioDe(s) }),
-      h('span', { class: 'meta', texto: `${duracion(s.duracion_min)} aprox.${s.paquete && s.precio ? ' · ' + s.paquete.toLowerCase() : ''}` }),
-      enlace(`${BASE}/reservar?servicio=${s.id}`, { class: 'mas', 'aria-label': `Reservar ${s.nombre}`, title: 'Reservar' }, '+'),
+      h('span', { class: 'meta', texto: [s.duracion_texto && `Duración: ${s.duracion_texto}`, s.paquete && s.precio && s.paquete].filter(Boolean).join(' · ') || 'Duración por confirmar' }),
+      enlace(`${BASE}/reservar?servicio=${s.id}`, { class: 'mas', 'aria-label': `Reservar ${s.nombre}`, title: 'Reservar' }, 'Agendar'),
       h('details', { class: 'info' }, h('summary', {}, h('span', { texto: 'Ver info' })), h('p', { texto: s.descripcion }),
-        (s.requiere_valoracion || s.revisar_condiciones) && h('p', { class: 'info-nota', texto: s.requiere_valoracion ? 'La primera cita es de orientación: el equipo revisa tu caso y define contigo el plan.' : 'Una asesora revisa tu caso antes de la cita.' })));
+        s.revisar_condiciones && h('p', { class: 'info-nota', texto: 'Una asesora revisa tu caso antes de la cita.' }),
+        protocolo(s), h('div', { class: 'acciones-info' }, preguntarAlAsistente(s), enlace(`${BASE}/reservar?servicio=${s.id}`, { class: 'boton chico' }, 'Agendar'))));
     const servicios = h('section', { class: 'seccion', 'aria-labelledby': 'h-serv' }, h('h2', { id: 'h-serv' }, 'Servicios y valores'),
-      h('p', { class: 'ayuda', texto: 'Toca «Ver info +» para conocer cada servicio. Puedes agendar 2 o más en la misma visita.' }),
+      h('p', { class: 'ayuda', texto: 'Consulta qué incluye cada servicio y elige Agendar. Los paquetes muestran el valor total y reservan la primera sesión.' }),
+      h('label', {for:'buscar-servicios', class:'buscar-label'}, '¿Qué cuidado buscas?'),
+      h('input', {id:'buscar-servicios',type:'search',placeholder:'Busca limpieza, masaje, cejas…',class:'buscar-servicios',oninput:e=>{const q=slug(e.target.value);document.querySelectorAll('.lista-servicios .servicio').forEach(el=>{el.hidden=!slug(el.textContent).includes(q);});document.querySelectorAll('details.cat').forEach(el=>{el.hidden=![...el.querySelectorAll('.servicio')].some(x=>!x.hidden);if(q) el.open=true;});}}),
       grupos().map(([cat, ss], i) => h('details', { class: 'cat', id: `cat-${slug(cat)}`, open: i === 0 ? true : null },
         h('summary', {}, h('span', { class: 'cat-nombre', texto: cat }), h('small', { texto: [`${ss.length} ${ss.length === 1 ? 'servicio' : 'servicios'}`, desdeTxt(ss)].filter(Boolean).join(' · ') })),
-        ss.every(s => s.requiere_valoracion) && h('p', { class: 'nota-cat', texto: 'La primera cita es de orientación: el equipo revisa tu piel y tu vello y define contigo el plan. Puedes agendar varias zonas en la misma visita.' }),
+        ss.every(s => s.revisar_condiciones) && h('p', { class: 'nota-cat', texto: 'Antes de agendar revisa las contraindicaciones de cada tratamiento; una asesora confirma tu caso antes de la cita. Puedes agendar varios servicios en la misma visita.' }),
         h('ul', { class: 'lista-servicios' }, ss.map(itemServicio)))));
 
     const como = h('section', { class: 'seccion', 'aria-labelledby': 'h-como' }, h('h2', { id: 'h-como' }, 'Reservar es fácil'),
@@ -196,7 +217,36 @@
 
     document.title = `Centro estético en Pereira · Reserva tu cita · ${n.nombre}`; datosEstructurados();
     const barra = h('div', { class: 'barra-movil' }, h('div', { class: 'fila' }, enlace(`${BASE}/reservar`, { class: 'boton grande', style: 'flex:1;width:auto;min-width:0' }, 'Reservar'), S.cfg.negocio.telefono && h('a', { class: 'boton sec grande', href: `tel:${S.cfg.negocio.telefono}`, 'aria-label': `Llamar al ${telTexto(S.cfg.negocio.telefono)}`, style: 'min-width:0;width:auto;flex:0 0 auto;padding-inline:22px' }, 'Llamar')));   // en celular el botón principal siempre está a mano
-    montar(cabecera(), hero, h('main', { class: 'contenedor principal', id: 'contenido' }, h('div', {}, servicios, como, comodidades, opiniones), lateral), pie(), barra, whatsappFlotante());
+    montar(cabecera(), hero, h('main', { class: 'contenedor principal', id: 'contenido' }, h('div', {}, promociones(), servicios, como, comodidades, opiniones), lateral), pie(), barra, whatsappFlotante());
+  }
+
+
+  function tarjetaPromo(p, detalle = false) {
+    const vigente = promoVigente(p);
+    const reservar = p.servicio && vigente && servicio(p.servicio);
+    const href = `${BASE}/reservar?servicio=${p.servicio}&cod=${p.id.toUpperCase()}`;
+    const contacto = S.cfg.whatsapp.numero ? `https://wa.me/${S.cfg.whatsapp.numero}?text=${encodeURIComponent('Hola, me interesa la promoción '+p.nombre+' por '+cop(p.precio))}` : S.cfg.negocio.instagram;
+    return h('article', {class:'promo-card'}, detalle && h('img',{class:'promo-art',src:`${BASE}/fotos/promo-${p.foto}.png`,alt:`Diseño de la promoción ${p.nombre}`,loading:'lazy'}),
+      h('div', {class:'promo-contenido'}, h('small', {class:'eyebrow',texto:'8.º ANIVERSARIO · HASTA EL 15 DIC 2026'}),
+        h(detalle ? 'h1' : 'h3', {texto:p.nombre}), h('p',{texto:p.incluye}),
+        h('div',{class:'promo-precio'}, p.antes && h('del',{texto:cop(p.antes)}), h('strong',{texto:cop(p.precio)})),
+        h('p',{class:'ayuda',texto:p.nota}),
+        !vigente ? h('p',{role:'status',texto:'Esta promoción finalizó. Consulta los servicios vigentes.'}) :
+        !detalle ? enlace(`${BASE}/promo/${p.id}`,{class:'boton'},'Ver promoción →') :
+        reservar ? enlace(href,{class:'boton grande'},'Elegir fecha y hora') :
+        h('div',{class:'promo-contacto'}, h('p',{class:'ayuda',texto:'El equipo confirma la duración y disponibilidad antes de agendar.'}),contacto && h('a',{class:'boton',href:contacto,target:'_blank',rel:'noopener'},'Consultar esta promoción'),botonLlamar()),
+        detalle && enlace(`${BASE}/reservar`,{class:'enlace-catalogo'},'Ver todos los servicios')));
+  }
+  function vistaPromo(id) {
+    const p = PROMOS.find(x=>x.id===id);
+    document.title = p ? `${p.nombre} · Valencia Stetic` : 'Promoción no encontrada';
+    montar(cabecera(),h('main',{class:'contenedor promo-detalle'},p ? tarjetaPromo(p,true) : h('h1',{},'Promoción no encontrada')),pie());
+  }
+  function promociones() {
+    return h('section',{class:'seccion promociones','aria-label':'Promociones de aniversario'},
+      h('small',{class:'eyebrow',texto:'CELEBRAMOS CONTIGO'}),h('h2',{},'Tu próxima pausa empieza aquí.'),
+      h('p',{class:'ayuda',texto:'Experiencias de aniversario hasta el 15 de diciembre de 2026. Precios en pesos colombianos.'}),
+      h('div',{class:'promo-grid'},PROMOS.filter(promoVigente).map(p=>tarjetaPromo(p))));
   }
 
   // ───────── Vista: reservar (3 pasos) ─────────
@@ -252,7 +302,7 @@
     const n = S.cfg.negocio, min = S.duracion;
     return h('div', { class: 'resumen' },
       h('div', { class: 'lugar' }, h('img', { src: `${BASE}/logo.png`, alt: '' }), h('div', {}, h('b', { texto: n.nombre }), h('small', { texto: n.direccion }))),
-      ids.length ? ids.map(i => h('div', { class: 'res-item' }, h('div', {}, servicio(i).nombre, h('small', { texto: duracion(servicio(i).duracion_min) + (servicio(i).requiere_valoracion ? ' · cita de orientación' : '') })), h('span', { texto: servicio(i).precio ? cop(servicio(i).precio) : 'Por confirmar' }))) : h('p', { class: 'vacio-res', texto: 'Aún no has elegido servicios.' }),
+      ids.length ? ids.map(i => h('div', { class: 'res-item' }, h('div', {}, servicio(i).nombre, h('small', { texto: duracion(servicio(i).duracion_min) + (servicio(i).requiere_valoracion ? ' · cita de orientación' : '') })), h('span', { texto: servicio(i).precio ? cop(servicio(i).precio) : 'Por confirmar' }))) : h('p', { class: 'vacio-res', texto: 'Elige el cuidado que quieres reservar.' }),
       S.fecha && S.hora && [h('div', { class: 'res-fila' }, h('span', {}, 'Cuándo'), h('b', { texto: `${mayus(fechaLarga(S.fecha))} · ${hora12(S.hora)}` }))],
       ids.length > 0 && h('div', { class: 'res-total' }, h('span', {}, 'Total'), h('span', {}, h('span', { style: ids.some(i => !servicio(i).precio) ? 'font-size:.9rem' : '', texto: totalTxt(ids) }), h('small', { texto: min ? duracion(min) : '' }))),
       boton);
@@ -316,6 +366,8 @@
     const alternar = id => {
       const s = servicio(id), ya = S.sel.includes(id);
       if (ya) S.sel = S.sel.filter(x => x !== id);
+      else if (s.vigente_hasta) S.sel = [id];
+      else if (S.sel.some(x => servicio(x).vigente_hasta)) S.sel = [id];
       else if (s.solo) S.sel = [...S.sel.filter(x => servicio(x).solo && servicio(x).categoria === s.categoria), id].slice(-MAX_SERV);   // láser y postoperatorio: solo con los de su categoría
       else S.sel = [...S.sel.filter(x => !servicio(x).solo), id].slice(-MAX_SERV);
       S.fecha = null; S.hora = null; S.dias = []; S.horas = []; render();
@@ -329,10 +381,9 @@
       h('div', { class: 'cat-tabs', role: 'tablist', 'aria-label': 'Categorías' }, gs.map(([c]) => { const nSel = S.sel.filter(i => servicio(i)?.categoria === c).length; return h('button', { type: 'button', role: 'tab', class: 'cat-tab', 'aria-selected': String(c === S.cat), onclick: () => { S.cat = c; render(); } }, c, nSel > 0 && h('span', { class: 'cat-sel', texto: String(nSel) })); })),
       h('div', { class: 'opciones', role: 'group', 'aria-label': S.cat }, delaCat.map(s => h('div', { class: 'opcion-wrap' },
         h('button', { type: 'button', class: 'opcion', 'aria-pressed': String(S.sel.includes(s.id)), onclick: () => alternar(s.id) },
-          h('span', { class: 'n', texto: s.nombre }), h('span', { class: 'm', texto: `${duracion(s.duracion_min)}${s.paquete && s.precio ? ' · ' + s.paquete.toLowerCase() : ''}` }), h('span', { class: s.precio ? 'p' : 'p pendiente', texto: precioDe(s) })),
-        h('details', { class: 'info' }, h('summary', {}, h('span', { texto: 'Ver info' })), h('p', { texto: s.descripcion }))))),
-      esOrientacion(S.sel) && aviso('aviso', 'La primera cita de depilación láser es de orientación: el equipo revisa tu caso y define contigo el plan. No hay un número de sesiones igual para todas las personas.'),
-      S.sel.some(i => servicio(i)?.revisar_condiciones) && aviso('aviso', 'Antes de tu cita una asesora revisará tu caso contigo y te escribirá para confirmar los detalles. Estos servicios se agendan solos o junto a otros de su misma categoría (el masaje postoperatorio requiere la indicación de tu cirujano).')];
+          h('span', { class: 'n', texto: s.nombre }), h('span', { class: 'm', texto: [s.duracion_texto, s.paquete && s.precio && s.paquete.toLowerCase()].filter(Boolean).join(' · ') || 'Duración por confirmar' }), h('span', { class: s.precio ? 'p' : 'p pendiente', texto: precioDe(s) })),
+        h('details', { class: 'info' }, h('summary', {}, h('span', { texto: 'Ver info' })), h('p', { texto: s.descripcion }), protocolo(s))))),
+      S.sel.some(i => servicio(i)?.revisar_condiciones) && aviso('aviso', 'Antes de tu cita una asesora revisará tu caso contigo para confirmar que el tratamiento es adecuado para ti (revisa las contraindicaciones en «Ver protocolo y cuidados»). El post operatorio requiere la indicación de tu cirujano y se agenda solo.')];
     else if (paso === 2) cuerpo = [h('h1', { texto: 'Elige fecha y hora' }),
       h('p', { class: 'ayuda' }, S.sel.map(i => servicio(i).nombre).join(' + '), ' · ', h('button', { type: 'button', class: 'boton sec chico', onclick: () => { S.paso = 1; render(); } }, 'Cambiar servicios')),
       S.cargando ? h('div', { class: 'cargando', role: 'status' }, h('div', { class: 'giro', 'aria-hidden': 'true' }), 'Buscando horarios…') : (S.dias.length ? h('div', { class: 'fecha-hora' }, calendario(), horasPanel()) : sinCupos())];
@@ -486,6 +537,7 @@
     if (r.v !== 'reservar') inicioReserva = false;
     if (r.v !== 'cita') { S.modoCambio = false; S.cita = null; }
     if (r.v !== 'reservar' && S.res) S.res = null;
+    if (r.v === 'promo') return vistaPromo(r.id);
     if (r.v === 'perfil') return vistaPerfil();
     if (r.v === 'reservar') { iniciarReserva(); return vistaReservar(); }
     if (r.v === 'mis-citas') return vistaMisCitas();
@@ -495,9 +547,10 @@
   }
   function iniciarReserva() {
     if (inicioReserva) return; inicioReserva = true;
+    capturarRef();
     const q = new URLSearchParams(location.search);
     const pre = (q.get('servicio') || '').split(',').filter(id => servicio(id)).slice(0, 4);
-    if (pre.length && !S.sel.length) {
+    if (pre.length) {
       S.sel = pre.some(i => servicio(i).solo) ? [pre.find(i => servicio(i).solo)] : pre;
       S.paso = 2; setTimeout(cargarDias, 0); // viene de un servicio concreto (perfil, anuncio o bot): se salta directo a elegir día y hora
     }

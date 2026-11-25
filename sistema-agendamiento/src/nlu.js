@@ -1,5 +1,5 @@
 // Comprensión básica de texto libre por reglas (servicios, fechas, horas, intenciones).
-import { negocio, servicios } from './config.js';
+import { negocio, servicios, categoriasInfo } from './config.js';
 import { hoyLocal, sumarDias, diaSemana, NOMBRES_MESES } from './tiempo.js';
 
 export const normalizar = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
@@ -103,4 +103,47 @@ export function limpiarNombre(texto) {
     .replace(/[^\p{L}\s'-]/gu, ' ').replace(/\s+/g, ' ').trim();
   if (!t || t.length < 2 || t.split(' ').length > 5) return null;
   return t.split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+}
+
+// ───────── Contexto del catálogo: varios servicios, categorías y preguntas de detalle ─────────
+const limpio = t => ` ${normalizar(t).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+
+/** Todos los servicios que menciona el texto (para cotizar combos). Las coincidencias más largas ganan y se "consumen". */
+export function detectarServicios(texto) {
+  let t = limpio(texto);
+  const claves = [];
+  for (const s of servicios) for (const k of [s.nombre, ...(s.claves || [])]) { const nk = limpio(k).trim(); if (nk.length >= 4) claves.push({ id: s.id, k: nk }); }
+  claves.sort((a, b) => b.k.length - a.k.length);
+  const hallados = [];
+  for (const { id, k } of claves) {
+    const i = t.indexOf(` ${k} `);
+    if (i >= 0) { if (!hallados.includes(id)) hallados.push(id); t = t.slice(0, i) + ' '.repeat(k.length + 1) + t.slice(i + k.length + 1); }
+  }
+  return hallados;
+}
+
+/** Categoría a la que se refiere el texto cuando no nombra un servicio concreto (ej. "quiero un masaje", "depilación láser"). */
+export function categoriaDeTexto(texto) {
+  const t = limpio(texto); let mejor = null, largo = 0;
+  const hoy = hoyLocal(), vivas = new Set(servicios.filter(s => !s.vigente_hasta || hoy <= s.vigente_hasta).map(s => s.categoria));
+  for (const c of categoriasInfo.filter(c => vivas.has(c.nombre))) for (const k of [c.nombre, ...(c.claves || [])]) {
+    const nk = limpio(k).trim();
+    if (nk.length >= 3 && t.includes(` ${nk} `) && nk.length > largo) { mejor = c.nombre; largo = nk.length; }
+  }
+  return mejor;
+}
+
+/** Qué quiere saber la persona de un servicio: contraindicaciones, cuidados, sesiones, resultados, dolor, duración, incluye, pago o retoque. */
+export function preguntaDetalle(texto) {
+  const t = normalizar(texto);
+  if (/\b(contraindicaci|quien no puede|quienes no pueden|no se recomienda|efectos? secundarios?|riesgos?|es seguro|tiene peligro|puedo hacerme|puedo hacerlo|me lo puedo hacer|restricci)/.test(t)) return 'contraindicaciones';
+  if (/\b(retoque|retocar)/.test(t)) return 'retoque';
+  if (/\b(abono|pagar|cuotas|financi|fiado|forma de pago|formas de pago|pago por sesion)/.test(t)) return 'pago';
+  if (/\b(cuantas sesiones|numero de sesiones|cada cuanto|frecuencia|cuantas veces|cuanto tiempo dura el tratamiento|protocolo)/.test(t)) return 'sesiones';
+  if (/\b(resultados?|cuando (se )?(ve|veo|ven|notan|notare)|cuanto (dura|duran) (el )?(efecto|resultado)|efecto dura|permanente|definitiv)/.test(t)) return 'resultados';
+  if (/\b(duele|dolor|doloroso|molest|anestesia|aguanta)/.test(t)) return 'dolor';
+  if (/\b(cuidados|recomendacion|recomendaciones|que debo hacer|antes de (la|mi) (cita|sesion)|despues de|post ?tratamiento|instrucciones|indicaciones|prepararme|como me preparo)/.test(t)) return 'cuidados';
+  if (/\b(cuanto (dura|demora|tarda|se demora)|duracion|cuanto tiempo|que tanto dura)/.test(t)) return 'duracion';
+  if (/\b(que incluye|que trae|que hacen|en que consiste|procedimiento|como es|que se hace)/.test(t)) return 'incluye';
+  return null;
 }
